@@ -2,7 +2,7 @@
 // controllers/AdminController.php
 // Контроллер для администратора системы
 
-require_once 'config/database.php';
+require_once '../../config/database.php';
 
 class AdminController {
     private $db;

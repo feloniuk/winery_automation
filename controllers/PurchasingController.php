@@ -2,7 +2,7 @@
 // controllers/PurchasingController.php
 // Контроллер для управления закупками
 
-require_once 'config/database.php';
+require_once '../../config/database.php';
 
 class PurchasingController {
     private $db;

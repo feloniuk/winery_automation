@@ -3,7 +3,7 @@
 // Главная страница с формой авторизации
 
 // Подключение контроллера авторизации
-require_once 'controllers/AuthController.php';
+require_once '../../controllers/AuthController.php';
 
 $authController = new AuthController();
 
@@ -12,16 +12,16 @@ if ($authController->isLoggedIn()) {
     $role = $_SESSION['role'];
     switch ($role) {
         case 'admin':
-            header('Location: views/admin/dashboard.php');
+            header('Location: http://winery_automation.loc/views/admin/dashboard.php');
             break;
         case 'warehouse':
-            header('Location: views/warehouse/dashboard.php');
+            header('Location: http://winery_automation.loc/views/warehouse/dashboard.php');
             break;
         case 'purchasing':
-            header('Location: views/purchasing/dashboard.php');
+            header('Location: http://winery_automation.loc/views/purchasing/dashboard.php');
             break;
         case 'supplier':
-            header('Location: views/supplier/dashboard.php');
+            header('Location: http://winery_automation.loc/views/supplier/dashboard.php');
             break;
     }
     exit;
@@ -40,16 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Перенаправляем на соответствующую страницу
             switch ($result['role']) {
                 case 'admin':
-                    header('Location: views/admin/dashboard.php');
+                    header('Location: http://winery_automation.loc/views/admin/dashboard.php');
                     break;
                 case 'warehouse':
-                    header('Location: views/warehouse/dashboard.php');
+                    header('Location: http://winery_automation.loc/views/warehouse/dashboard.php');
                     break;
                 case 'purchasing':
-                    header('Location: views/purchasing/dashboard.php');
+                    header('Location: http://winery_automation.loc/views/purchasing/dashboard.php');
                     break;
                 case 'supplier':
-                    header('Location: views/supplier/dashboard.php');
+                    header('Location: http://winery_automation.loc/views/supplier/dashboard.php');
                     break;
             }
             exit;

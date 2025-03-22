@@ -2,7 +2,7 @@
 // controllers/AuthController.php
 // Контроллер для авторизации и регистрации пользователей
 
-require_once 'config/database.php';
+require_once '../../config/database.php';
 
 class AuthController {
     private $db;

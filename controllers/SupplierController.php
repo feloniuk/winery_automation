@@ -2,7 +2,7 @@
 // controllers/SupplierController.php
 // Контроллер для управления функционалом поставщика
 
-require_once 'config/database.php';
+require_once '../../config/database.php';
 
 class SupplierController {
     private $db;
