@@ -270,7 +270,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                                                 <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <a href="order_details.php?id=<?php echo $order['id']; ?>" class="text-teal-600 hover:text-teal-900 mr-3">
@@ -322,7 +322,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                                                 <?php echo date('d.m.Y', strtotime($order['updated_at'])); ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -344,7 +344,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                 <div class="flex items-center justify-between mb-6">
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
                         <p class="text-sm text-gray-500">Текущий месяц</p>
-                        <p class="text-2xl font-bold"><?php echo number_format($totalSpendingThisMonth, 2, ',', ' '); ?> ₽</p>
+                        <p class="text-2xl font-bold"><?php echo number_format($totalSpendingThisMonth, 2, ',', ' '); ?> ₴</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
                         <p class="text-sm text-gray-500">Средний расход за заказ</p>
@@ -352,7 +352,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             <?php 
                             $avgOrderAmount = $ordersThisMonth > 0 ? $totalSpendingThisMonth / $ordersThisMonth : 0;
                             echo number_format($avgOrderAmount, 2, ',', ' '); 
-                            ?> ₽
+                            ?> ₴
                         </p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
@@ -362,7 +362,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             // Простой прогноз - среднее за последние 3 месяца
                             $forecastAmount = $totalSpendingThisMonth * 1.1; // Предположим рост на 10%
                             echo number_format($forecastAmount, 2, ',', ' '); 
-                            ?> ₽
+                            ?> ₴
                         </p>
                     </div>
                 </div>

@@ -56,6 +56,116 @@ class WarehouseController {
         return $this->db->selectOne($query, [$productId]);
     }
 
+// Следующие методы нужно добавить в controllers/WarehouseController.php
+
+/**
+ * Получение отфильтрованных транзакций
+ */
+public function getFilteredTransactions($type = '', $productId = '', $dateFrom = '', $dateTo = '', $userId = '', $referenceType = '') {
+    // Создаем базовый запрос
+    $query = "SELECT it.*, p.name as product_name, p.unit, u.name as user_name 
+              FROM inventory_transactions it
+              JOIN products p ON it.product_id = p.id
+              JOIN users u ON it.created_by = u.id
+              WHERE 1=1";
+    
+    $params = [];
+    
+    // Применяем фильтры
+    if (!empty($type)) {
+        $query .= " AND it.transaction_type = ?";
+        $params[] = $type;
+    }
+    
+    if (!empty($productId)) {
+        $query .= " AND it.product_id = ?";
+        $params[] = $productId;
+    }
+    
+    if (!empty($dateFrom)) {
+        $query .= " AND DATE(it.created_at) >= ?";
+        $params[] = $dateFrom;
+    }
+    
+    if (!empty($dateTo)) {
+        $query .= " AND DATE(it.created_at) <= ?";
+        $params[] = $dateTo;
+    }
+    
+    if (!empty($userId)) {
+        $query .= " AND it.created_by = ?";
+        $params[] = $userId;
+    }
+    
+    if (!empty($referenceType)) {
+        $query .= " AND it.reference_type = ?";
+        $params[] = $referenceType;
+    }
+    
+    $query .= " ORDER BY it.created_at DESC";
+    
+    return $this->db->select($query, $params);
+}
+
+/**
+ * Получение списка всех пользователей для фильтрации
+ */
+public function getAllUsers() {
+    $query = "SELECT id, name, role FROM users ORDER BY role, name";
+    return $this->db->select($query);
+}
+
+/**
+ * Получение статистики по транзакциям
+ */
+public function getTransactionStatistics($dateFrom, $dateTo) {
+    // Основная статистика
+    $query = "SELECT 
+                COUNT(*) as total_count,
+                SUM(CASE WHEN transaction_type = 'in' THEN 1 ELSE 0 END) as in_count,
+                SUM(CASE WHEN transaction_type = 'out' THEN 1 ELSE 0 END) as out_count,
+                SUM(CASE WHEN reference_type = 'order' THEN 1 ELSE 0 END) as order_count,
+                SUM(CASE WHEN reference_type = 'production' THEN 1 ELSE 0 END) as production_count,
+                SUM(CASE WHEN reference_type = 'adjustment' THEN 1 ELSE 0 END) as adjustment_count
+              FROM inventory_transactions
+              WHERE DATE(created_at) BETWEEN ? AND ?";
+    
+    $stats = $this->db->selectOne($query, [$dateFrom, $dateTo]);
+    
+    // Данные для графика - активность по дням
+    $chartQuery = "
+        SELECT 
+            DATE(created_at) as date,
+            SUM(CASE WHEN transaction_type = 'in' THEN 1 ELSE 0 END) as in_count,
+            SUM(CASE WHEN transaction_type = 'out' THEN 1 ELSE 0 END) as out_count
+        FROM inventory_transactions
+        WHERE DATE(created_at) BETWEEN ? AND ?
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at)
+    ";
+    
+    $chartData = $this->db->select($chartQuery, [$dateFrom, $dateTo]);
+    
+    // Преобразуем данные для графика
+    $labels = [];
+    $inData = [];
+    $outData = [];
+    
+    foreach ($chartData as $data) {
+        $labels[] = date('d.m', strtotime($data['date']));
+        $inData[] = $data['in_count'];
+        $outData[] = $data['out_count'];
+    }
+    
+    $stats['chart_data'] = [
+        'labels' => $labels,
+        'in_data' => $inData,
+        'out_data' => $outData
+    ];
+    
+    return $stats;
+}
+
     // Добавление новой транзакции (приход/расход)
     public function addTransaction($productId, $quantity, $transactionType, $referenceId, $referenceType, $notes, $userId) {
         // Проверяем наличие товара

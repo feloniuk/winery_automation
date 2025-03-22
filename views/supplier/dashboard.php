@@ -208,7 +208,7 @@ if (!$supplierId) {
                                                 <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -259,7 +259,7 @@ if (!$supplierId) {
                                                 <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                                <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <?php
@@ -398,7 +398,7 @@ if (!$supplierId) {
             data: {
                 labels: <?php echo json_encode(array_column($salesStats, 'month_name')); ?>,
                 datasets: [{
-                    label: 'Сумма заказов (₽)',
+                    label: 'Сумма заказов (₴)',
                     data: <?php echo json_encode(array_column($salesStats, 'total_amount')); ?>,
                     backgroundColor: 'rgba(217, 119, 6, 0.2)',
                     borderColor: 'rgba(217, 119, 6, 1)',
@@ -413,7 +413,7 @@ if (!$supplierId) {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toLocaleString() + ' ₽';
+                                return value.toLocaleString() + ' ₴';
                             }
                         }
                     }
@@ -422,7 +422,7 @@ if (!$supplierId) {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + context.raw.toLocaleString() + ' ₽';
+                                return context.dataset.label + ': ' + context.raw.toLocaleString() + ' ₴';
                             }
                         }
                     }

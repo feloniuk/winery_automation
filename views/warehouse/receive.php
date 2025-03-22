@@ -326,7 +326,7 @@ $sources = [
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="text-sm text-gray-500 mb-1">Общая сумма заказа:</div>
                             <div class="text-3xl font-bold text-gray-900 mb-4">
-                                <?php echo number_format($orderDetails['order']['total_amount'], 2, ',', ' '); ?> ₽
+                                <?php echo number_format($orderDetails['order']['total_amount'], 2, ',', ' '); ?> ₴
                             </div>
                             
                             <form method="POST" action="">
@@ -376,10 +376,10 @@ $sources = [
                                     <?php echo $item['quantity'] . ' ' . $item['unit']; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <?php echo number_format($item['price'], 2, ',', ' ') . ' ₽'; ?>
+                                    <?php echo number_format($item['price'], 2, ',', ' ') . ' ₴'; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?php echo number_format($itemTotal, 2, ',', ' ') . ' ₽'; ?>
+                                    <?php echo number_format($itemTotal, 2, ',', ' ') . ' ₴'; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -432,7 +432,7 @@ $sources = [
                                     <?php echo date('d.m.Y', strtotime($order['updated_at'])); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                    <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="?order_id=<?php echo $order['id']; ?>" class="text-purple-600 hover:text-purple-900 mr-3">

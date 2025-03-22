@@ -304,7 +304,7 @@ $topSuppliers = $purchasingController->getTopSuppliers(5);
                                     <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                    <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <?php

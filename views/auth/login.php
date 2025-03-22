@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
                 Вы поставщик и еще не зарегистрированы?
-                <a href="views/auth/register.php" class="font-medium text-purple-600 hover:text-purple-500">
+                <a href="register.php" class="font-medium text-purple-600 hover:text-purple-500">
                     Зарегистрироваться
                 </a>
             </p>

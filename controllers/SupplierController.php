@@ -14,6 +14,7 @@ class SupplierController {
         $this->db = new Database();
         $this->db->getConnection();
     }
+    
 
     // Получение ID поставщика по ID пользователя
     public function getSupplierIdByUserId($userId) {

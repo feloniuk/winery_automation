@@ -463,7 +463,7 @@ $exportFormats = ['pdf', 'excel', 'csv'];
                             </div>
                             <div class="bg-white p-4 rounded-lg shadow">
                                 <p class="text-sm text-gray-500 mb-1">Общая сумма заказов</p>
-                                <p class="text-lg font-semibold"><?php echo number_format($reportData['total_spending'], 2, ',', ' '); ?> ₽</p>
+                                <p class="text-lg font-semibold"><?php echo number_format($reportData['total_spending'], 2, ',', ' '); ?> ₴</p>
                             </div>
                         </div>
                         

@@ -380,7 +380,7 @@ $statusClasses = [
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
                                     <dt class="text-sm font-medium text-gray-500">Сумма заказа:</dt>
-                                    <dd class="text-sm text-gray-900 col-span-2"><?php echo number_format($orderDetails['order']['total_amount'], 2, ',', ' ') . ' ₽'; ?></dd>
+                                    <dd class="text-sm text-gray-900 col-span-2"><?php echo number_format($orderDetails['order']['total_amount'], 2, ',', ' ') . ' ₴'; ?></dd>
                                 </div>
                                 
                                 <!-- Действия с заказом -->
@@ -449,10 +449,10 @@ $statusClasses = [
                                         <?php echo $item['quantity'] . ' ' . $item['unit']; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?php echo number_format($item['price'], 2, ',', ' ') . ' ₽'; ?>
+                                        <?php echo number_format($item['price'], 2, ',', ' ') . ' ₴'; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?php echo number_format($itemTotal, 2, ',', ' ') . ' ₽'; ?>
+                                        <?php echo number_format($itemTotal, 2, ',', ' ') . ' ₴'; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -461,7 +461,7 @@ $statusClasses = [
                                         Итого:
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                        <?php echo number_format($totalAmount, 2, ',', ' ') . ' ₽'; ?>
+                                        <?php echo number_format($totalAmount, 2, ',', ' ') . ' ₴'; ?>
                                     </td>
                                 </tr>
                             </tbody>
@@ -538,7 +538,7 @@ $statusClasses = [
                                             <label class="block text-xs font-medium text-gray-700">Количество</label>
                                         </div>
                                         <div class="col-span-3">
-                                            <label class="block text-xs font-medium text-gray-700">Цена за ед. (₽)</label>
+                                            <label class="block text-xs font-medium text-gray-700">Цена за ед. (₴)</label>
                                         </div>
                                         <div class="col-span-1">
                                             <label class="block text-xs font-medium text-gray-700">&nbsp;</label>
@@ -646,7 +646,7 @@ $statusClasses = [
                                             <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₽
+                                            <?php echo number_format($order['total_amount'], 2, ',', ' '); ?> ₴
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo $statusClasses[$order['status']]; ?>">
