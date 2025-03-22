@@ -3,7 +3,13 @@
 // Главная страница с формой авторизации
 
 // Подключение контроллера авторизации
-require_once '../../controllers/AuthController.php';
+define('ROOT_PATH', dirname(dirname(__DIR__)));
+
+// Подключаем файл инициализации
+require_once ROOT_PATH . '/init.php';
+
+// Подключение контроллера авторизации
+require_once ROOT_PATH . '/controllers/AuthController.php';
 
 $authController = new AuthController();
 

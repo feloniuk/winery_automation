@@ -46,8 +46,8 @@ if ($statusFilter) {
 $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
 
 // Счетчики заказов
-$totalOrders = count($pendingOrders) + count($approvedOrders) + count($rejectedOrders) + count($receivedOrders);
-$activeOrders = count($pendingOrders) + count($approvedOrders);
+$totalOrders = count((array)$pendingOrders) + count((array)$approvedOrders) + count((array)$rejectedOrders) + count((array)$receivedOrders);
+$activeOrders = count((array)$pendingOrders) + count((array)$approvedOrders);
 
 // Обработка действий с заказами
 $message = '';

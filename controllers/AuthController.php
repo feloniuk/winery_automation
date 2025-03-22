@@ -2,8 +2,11 @@
 // controllers/AuthController.php
 // Контроллер для авторизации и регистрации пользователей
 
-require_once '../../config/database.php';
+if (!defined('ROOT_PATH')) {
+    require_once dirname(__DIR__) . '/config.php';
+}
 
+require_once ROOT_PATH . '/config/database.php';
 class AuthController {
     private $db;
 

@@ -3,7 +3,7 @@
 // Скрипт для выхода из системы
 
 // Подключаем контроллер авторизации
-require_once '../controllers/AuthController.php';
+require_once 'AuthController.php';
 
 $authController = new AuthController();
 
