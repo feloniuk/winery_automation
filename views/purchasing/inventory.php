@@ -5,9 +5,11 @@
 // Подключение контроллеров
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/WarehouseController.php';
+require_once '../../controllers/PurchasingController.php';
 
 $authController = new AuthController();
 $warehouseController = new WarehouseController();
+$purchasingController = new PurchasingController();
 
 // Проверка авторизации и роли
 if (!$authController->isLoggedIn() || !$authController->checkRole(['warehouse', 'admin', 'purchasing'])) {
@@ -19,6 +21,23 @@ if (!$authController->isLoggedIn() || !$authController->checkRole(['warehouse', 
 $currentUser = $authController->getCurrentUser();
 $inventorySummary = $warehouseController->getInventorySummary();
 $lowStockItems = $warehouseController->getLowStockItems();
+// Получение данных для дашборда
+$currentUser = $authController->getCurrentUser();
+$pendingOrders = $purchasingController->getOrdersByStatus('pending');
+$approvedOrders = $purchasingController->getOrdersByStatus('approved');
+$receivedOrders = $purchasingController->getRecentReceivedOrders(5);
+$lowStockItems = $purchasingController->getLowStockItems();
+$suppliers = $purchasingController->getActiveSuppliers();
+
+// Подсчет важных метрик
+$totalActiveOrders = count($pendingOrders) + count($approvedOrders);
+$totalActiveSuppliers = count($suppliers);
+$totalLowStockItems = count($lowStockItems);
+$ordersThisMonth = $purchasingController->getOrdersCountForPeriod(date('Y-m-01'), date('Y-m-t'));
+$totalSpendingThisMonth = $purchasingController->getTotalSpendingForPeriod(date('Y-m-01'), date('Y-m-t'));
+
+// Получение данных для графика заказов по месяцам
+$ordersByMonth = $purchasingController->getOrderCountByMonth(6);
 
 // Фильтрация по категории
 $categoryFilter = isset($_GET['category']) ? $_GET['category'] : '';
@@ -194,37 +213,37 @@ $categoryNames = [
                         </a>
                     </li>
                     <li>
+                        <a href="suppliers.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
+                            <i class="fas fa-truck w-5 mr-2"></i>
+                            <span>Поставщики</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="orders.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
+                            <i class="fas fa-shopping-cart w-5 mr-2"></i>
+                            <span>Заказы</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="inventory.php" class="flex items-center p-2 bg-teal-100 text-teal-700 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Инвентаризация</span>
+                            <span>Остатки на складе</span>
                         </a>
                     </li>
                     <li>
-                        <a href="receive.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
-                            <i class="fas fa-truck-loading w-5 mr-2"></i>
-                            <span>Приём товаров</span>
+                        <a href="messages.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
+                            <i class="fas fa-envelope w-5 mr-2"></i>
+                            <span>Сообщения</span>
+                            <?php 
+                            $unreadCount = $purchasingController->getUnreadMessagesCount($currentUser['id']);
+                            if ($unreadCount > 0): 
+                            ?>
+                            <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                <?php echo $unreadCount; ?>
+                            </span>
+                            <?php endif; ?>
                         </a>
                     </li>
-                    <li>
-                        <a href="issue.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
-                            <i class="fas fa-dolly w-5 mr-2"></i>
-                            <span>Выдача товаров</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="transactions.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
-                            <i class="fas fa-exchange-alt w-5 mr-2"></i>
-                            <span>История транзакций</span>
-                        </a>
-                    </li>
-                    <?php if ($currentUser['role'] === 'admin'): ?>
-                    <li>
-                        <a href="../admin/dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
-                            <i class="fas fa-user-shield w-5 mr-2"></i>
-                            <span>Панель администратора</span>
-                        </a>
-                    </li>
-                    <?php endif; ?>
                 </ul>
             </div>
             

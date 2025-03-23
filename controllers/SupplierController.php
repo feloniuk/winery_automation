@@ -278,6 +278,18 @@ class SupplierController {
         return $this->db->select($query, [$supplierId, $supplierId]);
     }
 
+    // Получение даты последней поставки товара
+    public function getProductLastDelivery($supplierId, $productId) {
+        $query = "SELECT MAX(it.created_at) as last_delivery 
+                  FROM inventory_transactions it
+                  JOIN orders o ON it.reference_id = o.id AND it.reference_type = 'order'
+                  WHERE o.supplier_id = ? AND it.product_id = ? AND it.transaction_type = 'in'";
+        
+        $result = $this->db->selectOne($query, [$supplierId, $productId]);
+        
+        return $result && isset($result['last_delivery']) ? $result['last_delivery'] : null;
+    }
+
     // Принятие заказа поставщиком
     public function acceptOrder($orderId, $supplierId) {
         // Проверяем, принадлежит ли заказ поставщику и находится ли он в состоянии 'pending'

@@ -1,5 +1,0 @@
-[2025-03-22 23:30:34] Uncaught Exception: Call to undefined method PurchasingController::getTotalOrdersCount()
-File: D:\diploms-2025\winery_automation2\views\purchasing\suppliers.php on line 48
-Stack trace: 
-#0 {main}
-
