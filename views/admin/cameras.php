@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="text" id="stream_url" name="stream_url" required
                                        value="<?php echo $editCamera ? htmlspecialchars($editCamera['stream_url']) : ''; ?>"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                <p class="mt-1 text-xs text-gray-500">Например: rtsp://192.168.1.100:554/cam1</p>
+                                <p class="mt-1 text-xs text-gray-500">Например: rtsp://192.168.1.100:554/cam1 или http://localhost/webcam.php для локальной камеры</p>
                             </div>
                             
                             <?php if ($editCamera): ?>
@@ -342,14 +342,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p class="text-gray-500">Нет активных камер для отображения.</p>
                     </div>
                     <?php else: ?>
-                        <?php foreach (array_slice($activeCameras, 0, 4) as $camera): ?>
+                        <?php 
+                        // Создаем временный HTML-файл для веб-камеры, если его еще нет
+                        $webcamFilePath = '../../webcam.php';
+                        if (!file_exists($webcamFilePath)) {
+                            $webcamContent = <<<HTML
+<?php
+header('Content-Type: text/html; charset=utf-8');
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Веб-камера</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: #000; 
+            overflow: hidden;
+        }
+        video { 
+            width: 100%; 
+            height: 100vh; 
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    
+    <script>
+        const video = document.getElementById('video');
+        
+        async function startVideo() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+                
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Ошибка доступа к камере:", err);
+                document.body.innerHTML = "<p style='color: white; text-align: center;'>Ошибка доступа к камере. Убедитесь, что камера подключена и разрешения выданы.</p>";
+            }
+        }
+        
+        startVideo();
+    </script>
+</body>
+</html>
+HTML;
+                            file_put_contents($webcamFilePath, $webcamContent);
+                        }
+                        
+                        foreach (array_slice($activeCameras, 0, 4) as $index => $camera): 
+                        // Проверяем, является ли эта камера Камерой 1
+                        $isCamera1 = $camera['id'] == 1 || $camera['name'] == 'Камера 1';
+                        ?>
                         <div class="bg-gray-900 rounded-lg overflow-hidden shadow">
                             <div class="aspect-w-16 aspect-h-9">
-                                <!-- В реальной системе здесь был бы встроенный плеер для отображения потока с камеры -->
+                                <?php if ($isCamera1): ?>
+                                <!-- Отображаем веб-камеру для Камеры 1 -->
+                                <iframe src="<?php echo htmlspecialchars('../../webcam.php'); ?>" 
+                                        class="w-full h-64" 
+                                        frameborder="0" 
+                                        allow="camera; microphone" 
+                                        allowfullscreen></iframe>
+                                <?php else: ?>
+                                <!-- Для остальных камер показываем заглушку -->
                                 <div class="w-full h-64 flex flex-col items-center justify-center text-gray-500">
                                     <i class="fas fa-video-slash fa-3x mb-2"></i>
                                     <p class="text-center px-4">Это демонстрационный режим.<br>В реальной системе здесь будет видео с камеры.</p>
                                 </div>
+                                <?php endif; ?>
                             </div>
                             <div class="p-3 bg-gray-800 text-white">
                                 <div class="flex justify-between items-center">
