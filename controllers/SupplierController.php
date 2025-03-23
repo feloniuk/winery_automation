@@ -8,7 +8,7 @@ if (!defined('ROOT_PATH')) {
 require_once ROOT_PATH . '/config/database.php';
 
 class SupplierController {
-    private $db;
+    public $db;
 
     public function __construct() {
         $this->db = new Database();

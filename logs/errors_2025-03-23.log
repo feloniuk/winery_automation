@@ -1,0 +1,14 @@
+[2025-03-23 08:53:32] Uncaught Exception: Call to a member function selectOne() on null
+File: D:\diploms-2025\winery_automation2\views\supplier\product_details.php on line 54
+Stack trace: 
+#0 [internal function]: {closure}(Array)
+#1 D:\diploms-2025\winery_automation2\views\supplier\product_details.php(58): array_filter(Array, Object(Closure))
+#2 {main}
+
+[2025-03-23 08:58:14] Uncaught Exception: Cannot access private property SupplierController::$db
+File: D:\diploms-2025\winery_automation2\views\supplier\product_details.php on line 55
+Stack trace: 
+#0 [internal function]: {closure}(Array)
+#1 D:\diploms-2025\winery_automation2\views\supplier\product_details.php(59): array_filter(Array, Object(Closure))
+#2 {main}
+
