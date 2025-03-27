@@ -1,38 +1,38 @@
 <?php
 // views/supplier/orders.php
-// Страница просмотра и обработки заказов для поставщика
+// Сторінка перегляду та обробки замовлень для постачальника
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/SupplierController.php';
 
 $authController = new AuthController();
 $supplierController = new SupplierController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('supplier')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных пользователя
+// Отримання даних користувача
 $currentUser = $authController->getCurrentUser();
 $supplierId = $supplierController->getSupplierIdByUserId($currentUser['id']);
 
 if (!$supplierId) {
-    // Если данные поставщика не найдены, отображаем ошибку
-    $error = "Ошибка: данные поставщика не найдены. Обратитесь к администратору.";
+    // Якщо дані постачальника не знайдені, відображаємо помилку
+    $error = "Помилка: дані постачальника не знайдені. Зверніться до адміністратора.";
 } else {
-    // Получаем информацию о поставщике
+    // Отримуємо інформацію про постачальника
     $supplierInfo = $supplierController->getSupplierInfo($supplierId);
     
-    // Фильтрация заказов по статусу
+    // Фільтрація замовлень за статусом
     $statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
     
     if ($statusFilter) {
         $ordersList = $supplierController->getOrdersByStatus($supplierId, $statusFilter);
     } else {
-        // Если статус не указан, показываем все заказы
+        // Якщо статус не вказано, показуємо всі замовлення
         $pendingOrders = $supplierController->getOrdersByStatus($supplierId, 'pending');
         $approvedOrders = $supplierController->getOrdersByStatus($supplierId, 'approved');
         $rejectedOrders = $supplierController->getOrdersByStatus($supplierId, 'rejected');
@@ -40,36 +40,36 @@ if (!$supplierId) {
         
         $ordersList = array_merge($pendingOrders, $approvedOrders, $rejectedOrders, $receivedOrders);
         
-        // Сортировка по дате (сначала новые)
+        // Сортування за датою (спочатку нові)
         usort($ordersList, function($a, $b) {
             return strtotime($b['created_at']) - strtotime($a['created_at']);
         });
     }
     
-    // Получение статистики по заказам
+    // Отримання статистики по замовленнях
     $orderStats = $supplierController->getOrderStats($supplierId);
 }
 
-// Обработка действий с заказами
+// Обробка дій із замовленнями
 $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Принятие заказа
+    // Прийняття замовлення
     if (isset($_POST['accept_order'])) {
         $orderId = $_POST['order_id'] ?? '';
         
         if (empty($orderId)) {
-            $error = "Идентификатор заказа не указан";
+            $error = "Ідентифікатор замовлення не вказано";
         } else {
             $result = $supplierController->acceptOrder($orderId, $supplierId);
             if ($result['success']) {
                 $message = $result['message'];
-                // Перезагружаем данные
+                // Перезавантажуємо дані
                 if ($statusFilter) {
                     $ordersList = $supplierController->getOrdersByStatus($supplierId, $statusFilter);
                 } else {
-                    // Обновляем все заказы
+                    // Оновлюємо всі замовлення
                     $pendingOrders = $supplierController->getOrdersByStatus($supplierId, 'pending');
                     $approvedOrders = $supplierController->getOrdersByStatus($supplierId, 'approved');
                     $rejectedOrders = $supplierController->getOrdersByStatus($supplierId, 'rejected');
@@ -77,12 +77,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $ordersList = array_merge($pendingOrders, $approvedOrders, $rejectedOrders, $receivedOrders);
                     
-                    // Сортировка по дате (сначала новые)
+                    // Сортування за датою (спочатку нові)
                     usort($ordersList, function($a, $b) {
                         return strtotime($b['created_at']) - strtotime($a['created_at']);
                     });
                 }
-                // Обновляем статистику
+                // Оновлюємо статистику
                 $orderStats = $supplierController->getOrderStats($supplierId);
             } else {
                 $error = $result['message'];
@@ -90,22 +90,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Отклонение заказа
+    // Відхилення замовлення
     if (isset($_POST['reject_order'])) {
         $orderId = $_POST['order_id'] ?? '';
         $reason = $_POST['rejection_reason'] ?? '';
         
         if (empty($orderId)) {
-            $error = "Идентификатор заказа не указан";
+            $error = "Ідентифікатор замовлення не вказано";
         } else {
             $result = $supplierController->rejectOrder($orderId, $supplierId, $reason);
             if ($result['success']) {
                 $message = $result['message'];
-                // Перезагружаем данные
+                // Перезавантажуємо дані
                 if ($statusFilter) {
                     $ordersList = $supplierController->getOrdersByStatus($supplierId, $statusFilter);
                 } else {
-                    // Обновляем все заказы
+                    // Оновлюємо всі замовлення
                     $pendingOrders = $supplierController->getOrdersByStatus($supplierId, 'pending');
                     $approvedOrders = $supplierController->getOrdersByStatus($supplierId, 'approved');
                     $rejectedOrders = $supplierController->getOrdersByStatus($supplierId, 'rejected');
@@ -113,12 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $ordersList = array_merge($pendingOrders, $approvedOrders, $rejectedOrders, $receivedOrders);
                     
-                    // Сортировка по дате (сначала новые)
+                    // Сортування за датою (спочатку нові)
                     usort($ordersList, function($a, $b) {
                         return strtotime($b['created_at']) - strtotime($a['created_at']);
                     });
                 }
-                // Обновляем статистику
+                // Оновлюємо статистику
                 $orderStats = $supplierController->getOrderStats($supplierId);
             } else {
                 $error = $result['message'];
@@ -127,22 +127,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Получение деталей заказа, если указан ID
+// Отримання деталей замовлення, якщо вказано ID
 $orderDetails = null;
 if (isset($_GET['view']) && !empty($_GET['view'])) {
     $orderId = $_GET['view'];
     $orderDetails = $supplierController->getOrderWithItems($orderId, $supplierId);
 }
 
-// Определяем переводы статусов для отображения
+// Визначаємо переклади статусів для відображення
 $statusTranslations = [
-    'pending' => 'Ожидает подтверждения',
-    'approved' => 'Подтвержден',
-    'rejected' => 'Отклонен',
-    'received' => 'Получен'
+    'pending' => 'Очікує підтвердження',
+    'approved' => 'Підтверджено',
+    'rejected' => 'Відхилено',
+    'received' => 'Отримано'
 ];
 
-// Определяем классы стилей для статусов
+// Визначаємо класи стилів для статусів
 $statusClasses = [
     'pending' => 'bg-yellow-100 text-yellow-800',
     'approved' => 'bg-green-100 text-green-800',
@@ -152,34 +152,34 @@ $statusClasses = [
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление заказами - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Управління замовленнями - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-amber-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Поставщик)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Постачальник)</span>
                 <a href="../../controllers/logout.php" class="bg-amber-700 hover:bg-amber-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <?php if (isset($error) && $error === "Ошибка: данные поставщика не найдены. Обратитесь к администратору."): ?>
+    <?php if (isset($error) && $error === "Помилка: дані постачальника не знайдені. Зверніться до адміністратора."): ?>
     <div class="container mx-auto mt-6 px-4">
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
             <p><?php echo $error; ?></p>
@@ -187,9 +187,9 @@ $statusClasses = [
     </div>
     <?php else: ?>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний вміст -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -206,13 +206,13 @@ $statusClasses = [
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="orders.php" class="flex items-center p-2 bg-amber-100 text-amber-700 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Заказы</span>
+                            <span>Замовлення</span>
                             <?php if ($orderStats['pending_count'] > 0): ?>
                             <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 <?php echo $orderStats['pending_count']; ?>
@@ -223,13 +223,13 @@ $statusClasses = [
                     <li>
                         <a href="products.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Мои товары</span>
+                            <span>Мої товари</span>
                         </a>
                     </li>
                     <li>
                         <a href="messages.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-envelope w-5 mr-2"></i>
-                            <span>Сообщения</span>
+                            <span>Повідомлення</span>
                             <?php 
                             $unreadMessages = $supplierController->getUnreadMessages($currentUser['id']);
                             if (count($unreadMessages) > 0): 
@@ -243,47 +243,47 @@ $statusClasses = [
                     <li>
                         <a href="profile.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-user-cog w-5 mr-2"></i>
-                            <span>Мой профиль</span>
+                            <span>Мій профіль</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Блок статистики заказов -->
+            <!-- Блок статистики замовлень -->
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 class="font-semibold text-lg mb-3">Статистика заказов</h3>
+                <h3 class="font-semibold text-lg mb-3">Статистика замовлень</h3>
                 <ul class="space-y-3">
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Всего заказов:</span>
+                        <span class="text-gray-600">Всього замовлень:</span>
                         <span class="font-semibold"><?php echo $orderStats['total_orders']; ?></span>
                     </li>
                     <li class="flex justify-between">
-                        <a href="?status=pending" class="text-gray-600 hover:text-amber-700">Ожидают подтверждения:</a>
+                        <a href="?status=pending" class="text-gray-600 hover:text-amber-700">Очікують підтвердження:</a>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                             <?php echo $orderStats['pending_count']; ?>
                         </span>
                     </li>
                     <li class="flex justify-between">
-                        <a href="?status=approved" class="text-gray-600 hover:text-amber-700">Подтвержденные:</a>
+                        <a href="?status=approved" class="text-gray-600 hover:text-amber-700">Підтверджені:</a>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             <?php echo $orderStats['approved_count']; ?>
                         </span>
                     </li>
                     <li class="flex justify-between">
-                        <a href="?status=rejected" class="text-gray-600 hover:text-amber-700">Отклоненные:</a>
+                        <a href="?status=rejected" class="text-gray-600 hover:text-amber-700">Відхилені:</a>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                             <?php echo $orderStats['rejected_count']; ?>
                         </span>
                     </li>
                     <li class="flex justify-between">
-                        <a href="?status=received" class="text-gray-600 hover:text-amber-700">Полученные:</a>
+                        <a href="?status=received" class="text-gray-600 hover:text-amber-700">Отримані:</a>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                             <?php echo $orderStats['received_count']; ?>
                         </span>
                     </li>
                     <li class="border-t border-gray-200 pt-3 mt-2">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Общая сумма:</span>
+                            <span class="text-gray-600">Загальна сума:</span>
                             <span class="font-semibold"><?php echo number_format($orderStats['total_amount'], 2, ',', ' '); ?> ₴</span>
                         </div>
                     </li>
@@ -291,17 +291,17 @@ $statusClasses = [
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний вміст -->
         <main class="w-full md:w-3/4">
             <?php if (isset($_GET['view']) && $orderDetails): ?>
-                <!-- Режим просмотра деталей заказа -->
+                <!-- Режим перегляду деталей замовлення -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">
                             <a href="orders.php" class="text-amber-600 hover:text-amber-800 mr-2">
                                 <i class="fas fa-arrow-left"></i>
                             </a>
-                            Заказ #<?php echo $orderDetails['order']['id']; ?>
+                            Замовлення #<?php echo $orderDetails['order']['id']; ?>
                         </h2>
                         <div>
                             <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full <?php echo $statusClasses[$orderDetails['order']['status']]; ?>">
@@ -322,13 +322,13 @@ $statusClasses = [
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Информация о заказе -->
+                    <!-- Інформація про замовлення -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-3">Информация о заказе</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-3">Інформація про замовлення</h3>
                             <dl class="space-y-2">
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">ID заказа:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">ID замовлення:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo $orderDetails['order']['id']; ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
@@ -340,35 +340,35 @@ $statusClasses = [
                                     </dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Создан:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Створено:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo date('d.m.Y H:i', strtotime($orderDetails['order']['created_at'])); ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Обновлен:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Оновлено:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo date('d.m.Y H:i', strtotime($orderDetails['order']['updated_at'])); ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Создал:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Створив:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo htmlspecialchars($orderDetails['order']['created_by_name']); ?></dd>
                                 </div>
                             </dl>
                         </div>
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-3">Сумма заказа</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-3">Сума замовлення</h3>
                             <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="text-sm text-gray-500 mb-1">Общая сумма заказа:</div>
+                                <div class="text-sm text-gray-500 mb-1">Загальна сума замовлення:</div>
                                 <div class="text-3xl font-bold text-gray-900 mb-2">
                                     <?php echo number_format($orderDetails['order']['total_amount'], 2, ',', ' '); ?> ₴
                                 </div>
                                 
-                                <!-- Действия с заказом -->
+                                <!-- Дії із замовленням -->
                                 <?php if ($orderDetails['order']['status'] === 'pending'): ?>
                                 <div class="mt-4 flex flex-col space-y-2">
                                     <button id="showAcceptForm" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
-                                        <i class="fas fa-check mr-1"></i> Подтвердить заказ
+                                        <i class="fas fa-check mr-1"></i> Підтвердити замовлення
                                     </button>
                                     <button id="showRejectForm" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
-                                        <i class="fas fa-times mr-1"></i> Отклонить заказ
+                                        <i class="fas fa-times mr-1"></i> Відхилити замовлення
                                     </button>
                                 </div>
                                 <?php endif; ?>
@@ -376,49 +376,49 @@ $statusClasses = [
                         </div>
                     </div>
                     
-                    <!-- Формы подтверждения/отклонения заказа -->
+                    <!-- Форми підтвердження/відхилення замовлення -->
                     <?php if ($orderDetails['order']['status'] === 'pending'): ?>
                     <div id="acceptForm" class="hidden bg-gray-50 p-6 rounded-lg mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Подтверждение заказа</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Підтвердження замовлення</h3>
                         <p class="text-gray-600 mb-4">
-                            Вы подтверждаете, что можете выполнить этот заказ согласно указанным условиям?
+                            Ви підтверджуєте, що можете виконати це замовлення згідно із зазначеними умовами?
                         </p>
                         <form method="POST" action="">
                             <input type="hidden" name="order_id" value="<?php echo $orderDetails['order']['id']; ?>">
                             <div class="flex justify-end space-x-3">
                                 <button type="button" id="cancelAccept" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    Отмена
+                                    Скасувати
                                 </button>
                                 <button type="submit" name="accept_order" class="bg-green-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700">
-                                    Да, подтверждаю
+                                    Так, підтверджую
                                 </button>
                             </div>
                         </form>
                     </div>
                     
                     <div id="rejectForm" class="hidden bg-gray-50 p-6 rounded-lg mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Отклонение заказа</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Відхилення замовлення</h3>
                         <form method="POST" action="">
                             <input type="hidden" name="order_id" value="<?php echo $orderDetails['order']['id']; ?>">
                             <div class="mb-4">
-                                <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-2">Причина отклонения</label>
+                                <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-2">Причина відхилення</label>
                                 <textarea id="rejection_reason" name="rejection_reason" rows="3" required
                                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"></textarea>
                             </div>
                             <div class="flex justify-end space-x-3">
                                 <button type="button" id="cancelReject" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    Отмена
+                                    Скасувати
                                 </button>
                                 <button type="submit" name="reject_order" class="bg-red-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-red-700">
-                                    Отклонить заказ
+                                    Відхилити замовлення
                                 </button>
                             </div>
                         </form>
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Элементы заказа -->
-                    <h3 class="text-lg font-medium text-gray-900 mb-3">Элементы заказа</h3>
+                    <!-- Елементи замовлення -->
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Елементи замовлення</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -427,16 +427,16 @@ $statusClasses = [
                                         Товар
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Категория
+                                        Категорія
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Количество
+                                        Кількість
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Цена за ед.
+                                        Ціна за од.
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Сумма
+                                        Сума
                                     </th>
                                 </tr>
                             </thead>
@@ -451,9 +451,9 @@ $statusClasses = [
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <?php 
                                         $categoryNames = [
-                                            'raw_material' => 'Сырьё',
+                                            'raw_material' => 'Сировина',
                                             'packaging' => 'Упаковка',
-                                            'finished_product' => 'Готовая продукция'
+                                            'finished_product' => 'Готова продукція'
                                         ];
                                         echo $categoryNames[$item['category']] ?? $item['category']; 
                                         ?>
@@ -471,7 +471,7 @@ $statusClasses = [
                                 <?php endforeach; ?>
                                 <tr class="bg-gray-50">
                                     <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                        Итого:
+                                        Разом:
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                         <?php echo number_format($totalAmount, 2, ',', ' ') . ' ₴'; ?>
@@ -481,31 +481,30 @@ $statusClasses = [
                         </table>
                     </div>
                     
-                    <!-- Связь с менеджером -->
+                    <!-- Зв'язок з менеджером -->
                     <div class="mt-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-3">Связь с менеджером</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Зв'язок з менеджером</h3>
                         <a href="messages.php?compose=1&order_id=<?php echo $orderDetails['order']['id']; ?>" 
                            class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700">
-                            <i class="fas fa-envelope mr-2"></i> Написать менеджеру по закупкам
+                            <i class="fas fa-envelope mr-2"></i> Написати менеджеру із закупівель
                         </a>
                     </div>
                 </div>
             <?php else: ?>
-                <!-- Режим списка заказов -->
+                <!-- Режим списку замовлень -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">
                             <?php
                             if ($statusFilter === 'pending') {
-                                echo 'Заказы, ожидающие подтверждения';
+                                echo 'Замовлення, що очікують підтвердження';
                             } elseif ($statusFilter === 'approved') {
-                                echo 'Подтвержденные заказы';
+                                echo 'Підтверджені замовлення';
                             } elseif ($statusFilter === 'rejected') {
-                                echo 'Отклоненные заказы';
-                            } elseif ($statusFilter === 'received') {
-                                echo 'Полученные заказы';
+                                echo 'Відхилені замовлення';
+                            } elseif ($statusFilter === 'received') { echo 'Отримані замовлення';
                             } else {
-                                echo 'Все заказы';
+                                echo 'Усі замовлення';
                             }
                             ?>
                         </h2>
@@ -523,7 +522,7 @@ $statusClasses = [
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Таблица заказов -->
+                    <!-- Таблиця замовлень -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -532,19 +531,19 @@ $statusClasses = [
                                         ID
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Дата создания
+                                        Дата створення
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Создал
+                                        Створив
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Сумма
+                                        Сума
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Статус
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Действия
+                                        Дії
                                     </th>
                                 </tr>
                             </thead>
@@ -552,7 +551,7 @@ $statusClasses = [
                                 <?php if (empty($ordersList)): ?>
                                 <tr>
                                     <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                        Заказы не найдены
+                                        Замовлення не знайдені
                                     </td>
                                 </tr>
                                 <?php else: ?>
@@ -577,7 +576,7 @@ $statusClasses = [
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="?view=<?php echo $order['id']; ?>" class="text-amber-600 hover:text-amber-900">
-                                                Детали
+                                                Деталі
                                             </a>
                                         </td>
                                     </tr>
@@ -593,14 +592,14 @@ $statusClasses = [
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Формы подтверждения/отклонения заказа
+            // Форми підтвердження/відхилення замовлення
             const showAcceptFormBtn = document.getElementById('showAcceptForm');
             const cancelAcceptBtn = document.getElementById('cancelAccept');
             const acceptForm = document.getElementById('acceptForm');

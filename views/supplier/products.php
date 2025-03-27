@@ -1,42 +1,42 @@
 <?php
 // views/supplier/products.php
-// Страница для просмотра и управления товарами поставщика
+// Сторінка для перегляду та управління товарами постачальника
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/SupplierController.php';
 
 $authController = new AuthController();
 $supplierController = new SupplierController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('supplier')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных пользователя
+// Отримання даних користувача
 $currentUser = $authController->getCurrentUser();
 $supplierId = $supplierController->getSupplierIdByUserId($currentUser['id']);
 
 if (!$supplierId) {
-    // Если данные поставщика не найдены, отображаем ошибку
-    $error = "Ошибка: данные поставщика не найдены. Обратитесь к администратору.";
+    // Якщо дані постачальника не знайдені, відображаємо помилку
+    $error = "Помилка: дані постачальника не знайдені. Зверніться до адміністратора.";
 } else {
-    // Получаем информацию о поставщике
+    // Отримуємо інформацію про постачальника
     $supplierInfo = $supplierController->getSupplierInfo($supplierId);
     
-    // Получаем список товаров поставщика
+    // Отримуємо список товарів постачальника
     $supplierProducts = $supplierController->getSupplierProducts($supplierId);
     
-    // Категории товаров для отображения
+    // Категорії товарів для відображення
     $categories = [
-        'raw_material' => 'Сырьё',
+        'raw_material' => 'Сировина',
         'packaging' => 'Упаковка',
-        'finished_product' => 'Готовая продукция'
+        'finished_product' => 'Готова продукція'
     ];
     
-    // Фильтрация товаров по категории
+    // Фільтрація товарів за категорією
     $categoryFilter = isset($_GET['category']) ? $_GET['category'] : '';
     if ($categoryFilter) {
         $supplierProducts = array_filter($supplierProducts, function($product) use ($categoryFilter) {
@@ -44,7 +44,7 @@ if (!$supplierId) {
         });
     }
     
-    // Поиск по названию товара
+    // Пошук за назвою товару
     $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
     if ($searchTerm) {
         $supplierProducts = array_filter($supplierProducts, function($product) use ($searchTerm) {
@@ -52,53 +52,53 @@ if (!$supplierId) {
         });
     }
     
-    // Общая статистика по товарам
+    // Загальна статистика по товарах
     $totalProducts = count($supplierController->getSupplierProducts($supplierId));
     $totalSupplied = array_sum(array_map(function($product) {
         return $product['total_supplied'] ?? 0;
     }, $supplierController->getSupplierProducts($supplierId)));
     
-    // Получение количества непрочитанных сообщений
+    // Отримання кількості непрочитаних повідомлень
     $unreadMessages = $supplierController->getUnreadMessages($currentUser['id']);
 }
 
-// Обработка действий
+// Обробка дій
 $message = '';
 $error = '';
 
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои товары - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Мої товари - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js для графиков -->
+    <!-- Chart.js для графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-amber-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Поставщик)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Постачальник)</span>
                 <a href="../../controllers/logout.php" class="bg-amber-700 hover:bg-amber-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <?php if (isset($error) && $error === "Ошибка: данные поставщика не найдены. Обратитесь к администратору."): ?>
+    <?php if (isset($error) && $error === "Помилка: дані постачальника не знайдені. Зверніться до адміністратора."): ?>
     <div class="container mx-auto mt-6 px-4">
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
             <p><?php echo $error; ?></p>
@@ -106,9 +106,9 @@ $error = '';
     </div>
     <?php else: ?>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний вміст -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -125,25 +125,25 @@ $error = '';
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="orders.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Заказы</span>
+                            <span>Замовлення</span>
                         </a>
                     </li>
                     <li>
                         <a href="products.php" class="flex items-center p-2 bg-amber-100 text-amber-700 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Мои товары</span>
+                            <span>Мої товари</span>
                         </a>
                     </li>
                     <li>
                         <a href="messages.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-envelope w-5 mr-2"></i>
-                            <span>Сообщения</span>
+                            <span>Повідомлення</span>
                             <?php if (count($unreadMessages) > 0): ?>
                             <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 <?php echo count($unreadMessages); ?>
@@ -154,23 +154,23 @@ $error = '';
                     <li>
                         <a href="profile.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-user-cog w-5 mr-2"></i>
-                            <span>Мой профиль</span>
+                            <span>Мій профіль</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Блок статистики товаров -->
+            <!-- Блок статистики товарів -->
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 class="font-semibold text-lg mb-3">Статистика товаров</h3>
+                <h3 class="font-semibold text-lg mb-3">Статистика товарів</h3>
                 <ul class="space-y-3">
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Всего товаров:</span>
+                        <span class="text-gray-600">Всього товарів:</span>
                         <span class="font-semibold"><?php echo $totalProducts; ?></span>
                     </li>
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Всего поставлено:</span>
-                        <span class="font-semibold"><?php echo $totalSupplied; ?> ед.</span>
+                        <span class="text-gray-600">Всього поставлено:</span>
+                        <span class="font-semibold"><?php echo $totalSupplied; ?> од.</span>
                     </li>
                     <li class="border-t border-gray-200 pt-3">
                         <div class="grid grid-cols-2 gap-2">
@@ -192,34 +192,34 @@ $error = '';
                 </ul>
             </div>
             
-            <!-- Полезные ссылки -->
+            <!-- Корисні посилання -->
             <div class="bg-white rounded-lg shadow-md p-4">
-                <h3 class="font-semibold text-lg mb-3">Полезные ссылки</h3>
+                <h3 class="font-semibold text-lg mb-3">Корисні посилання</h3>
                 <ul class="space-y-2">
                     <li>
                         <a href="orders.php?status=pending" class="text-amber-600 hover:text-amber-800 block py-1">
-                            <i class="fas fa-clock mr-1"></i> Ожидающие заказы
+                            <i class="fas fa-clock mr-1"></i> Замовлення в очікуванні
                         </a>
                     </li>
                     <li>
                         <a href="messages.php?compose=1" class="text-amber-600 hover:text-amber-800 block py-1">
-                            <i class="fas fa-envelope mr-1"></i> Написать сообщение
+                            <i class="fas fa-envelope mr-1"></i> Написати повідомлення
                         </a>
                     </li>
                     <li>
                         <a href="profile.php" class="text-amber-600 hover:text-amber-800 block py-1">
-                            <i class="fas fa-user-edit mr-1"></i> Обновить профиль
+                            <i class="fas fa-user-edit mr-1"></i> Оновити профіль
                         </a>
                     </li>
                 </ul>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний вміст -->
         <main class="w-full md:w-3/4">
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Мои товары</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Мої товари</h2>
                 </div>
                 
                 <?php if ($message): ?>
@@ -228,17 +228,17 @@ $error = '';
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($error && $error !== "Ошибка: данные поставщика не найдены. Обратитесь к администратору."): ?>
+                <?php if ($error && $error !== "Помилка: дані постачальника не знайдені. Зверніться до адміністратора."): ?>
                 <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
                     <p><?php echo $error; ?></p>
                 </div>
                 <?php endif; ?>
                 
-                <!-- Фильтры и поиск -->
+                <!-- Фільтри та пошук -->
                 <div class="mb-6 flex flex-wrap justify-between items-center">
                     <div class="flex space-x-2 mb-3 md:mb-0">
                         <a href="products.php" class="<?php echo empty($categoryFilter) ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Все категории
+                            Усі категорії
                         </a>
                         <?php foreach ($categories as $code => $name): ?>
                         <a href="?category=<?php echo $code; ?>" class="<?php echo $categoryFilter === $code ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
@@ -253,37 +253,37 @@ $error = '';
                         <?php endif; ?>
                         <div class="relative flex-grow max-w-xs">
                             <input type="text" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" 
-                                  placeholder="Поиск товаров..." 
+                                  placeholder="Пошук товарів..." 
                                   class="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm pl-10">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
                         </div>
                         <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-r-md shadow-sm text-white bg-amber-600 hover:bg-amber-700">
-                            Поиск
+                            Пошук
                         </button>
                         <?php if ($searchTerm): ?>
                         <a href="<?php echo $categoryFilter ? "?category=$categoryFilter" : "products.php"; ?>" class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-times mr-1"></i> Сбросить
+                            <i class="fas fa-times mr-1"></i> Скинути
                         </a>
                         <?php endif; ?>
                     </form>
                 </div>
                 
-                <!-- График поставок по категориям -->
+                <!-- Графік поставок за категоріями -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Распределение поставок по категориям</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Розподіл поставок за категоріями</h3>
                     <div class="h-64">
                         <canvas id="categoriesChart"></canvas>
                     </div>
                 </div>
                 
-                <!-- Таблица товаров -->
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Список поставляемых товаров</h3>
+                <!-- Таблиця товарів -->
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Список товарів для постачання</h3>
                 <?php if (empty($supplierProducts)): ?>
                 <div class="text-center py-6 bg-gray-50 rounded-lg">
-                    <p class="text-gray-500">У вас пока нет поставляемых товаров</p>
-                    <p class="text-sm text-gray-400 mt-2">Когда вы начнете поставлять товары, они появятся здесь</p>
+                    <p class="text-gray-500">У вас поки немає товарів для постачання</p>
+                    <p class="text-sm text-gray-400 mt-2">Коли ви почнете постачати товари, вони з'являться тут</p>
                 </div>
                 <?php else: ?>
                 <div class="overflow-x-auto">
@@ -291,22 +291,22 @@ $error = '';
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Название
+                                    Назва
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Категория
+                                    Категорія
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Единица измерения
+                                    Одиниця виміру
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Всего поставлено
+                                    Всього поставлено
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Последняя поставка
+                                    Остання поставка
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Действия
+                                    Дії
                                 </th>
                             </tr>
                         </thead>
@@ -328,12 +328,12 @@ $error = '';
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <?php 
                                     $lastDelivery = $supplierController->getProductLastDelivery($supplierId, $product['id']);
-                                    echo $lastDelivery ? date('d.m.Y', strtotime($lastDelivery)) : 'Нет данных';
+                                    echo $lastDelivery ? date('d.m.Y', strtotime($lastDelivery)) : 'Немає даних';
                                     ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="product_details.php?id=<?php echo $product['id']; ?>" class="text-amber-600 hover:text-amber-900">
-                                        Подробнее
+                                        Детальніше
                                     </a>
                                 </td>
                             </tr>
@@ -344,23 +344,23 @@ $error = '';
                 <?php endif; ?>
             </div>
             
-            <!-- Топ-5 самых поставляемых товаров -->
+            <!-- Топ-5 найбільш постачаємих товарів -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Топ поставляемых товаров</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Топ товарів для постачання</h2>
                 
                 <?php
-                // Сортируем товары по количеству поставок
+                // Сортуємо товари за кількістю поставок
                 usort($supplierProducts, function($a, $b) {
                     return ($b['total_supplied'] ?? 0) - ($a['total_supplied'] ?? 0);
                 });
                 
-                // Берем первые 5 товаров
+                // Беремо перші 5 товарів
                 $topProducts = array_slice($supplierProducts, 0, 5);
                 ?>
                 
                 <?php if (empty($topProducts)): ?>
                 <div class="text-center py-6 bg-gray-50 rounded-lg">
-                    <p class="text-gray-500">Нет данных о поставляемых товарах</p>
+                    <p class="text-gray-500">Немає даних про товари для постачання</p>
                 </div>
                 <?php else: ?>
                 <div class="space-y-4">
@@ -392,9 +392,9 @@ $error = '';
                 </div>
                 
                 <div class="mt-6 bg-amber-50 p-4 rounded-lg">
-                    <h3 class="text-sm font-medium text-amber-900 mb-2">Совет по улучшению поставок:</h3>
+                    <h3 class="text-sm font-medium text-amber-900 mb-2">Порада щодо покращення поставок:</h3>
                     <p class="text-sm text-amber-800">
-                        Обратите внимание на товары, которые пользуются наибольшим спросом. Регулярное обновление запасов этих товаров поможет укрепить ваши партнерские отношения с винным производством.
+                        Зверніть увагу на товари, які користуються найбільшим попитом. Регулярне оновлення запасів цих товарів допоможе зміцнити ваші партнерські відносини з винним виробництвом.
                     </p>
                 </div>
                 <?php endif; ?>
@@ -404,14 +404,14 @@ $error = '';
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
-    <!-- JavaScript для графиков -->
+    <!-- JavaScript для графіків -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Группировка товаров по категориям для графика
+            // Групування товарів за категоріями для графіка
             const categoryCounts = {
                 'raw_material': 0,
                 'packaging': 0,
@@ -419,9 +419,9 @@ $error = '';
             };
             
             const categoryLabels = {
-                'raw_material': 'Сырьё',
+                'raw_material': 'Сировина',
                 'packaging': 'Упаковка',
-                'finished_product': 'Готовая продукция'
+                'finished_product': 'Готова продукція'
             };
             
             <?php foreach ($supplierProducts as $product): ?>
@@ -430,7 +430,7 @@ $error = '';
             <?php endif; ?>
             <?php endforeach; ?>
             
-            // Создание графика распределения по категориям
+            // Створення графіка розподілу за категоріями
             var ctx = document.getElementById('categoriesChart').getContext('2d');
             var categoriesChart = new Chart(ctx, {
                 type: 'pie',
@@ -465,7 +465,7 @@ $error = '';
                                     var value = context.raw || 0;
                                     var total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     var percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                    return label + ': ' + value + ' ед. (' + percentage + '%)';
+                                    return label + ': ' + value + ' од. (' + percentage + '%)';
                                 }
                             }
                         }

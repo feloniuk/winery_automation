@@ -1,29 +1,29 @@
 <?php
 // views/warehouse/issue.php
-// Страница для выдачи товаров со склада
+// Сторінка для видачі товарів зі складу
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/WarehouseController.php';
 
 $authController = new AuthController();
 $warehouseController = new WarehouseController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole(['warehouse', 'admin'])) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для страницы
+// Отримання даних для сторінки
 $currentUser = $authController->getCurrentUser();
 $categories = [
-    'raw_material' => 'Сырьё',
+    'raw_material' => 'Сировина',
     'packaging' => 'Упаковка',
-    'finished_product' => 'Готовая продукция'
+    'finished_product' => 'Готова продукція'
 ];
 
-// Получение списка продуктов для выбора
+// Отримання списку продуктів для вибору
 $selectedCategory = isset($_GET['category']) ? $_GET['category'] : 'all';
 if ($selectedCategory !== 'all') {
     $products = $warehouseController->getProductsByCategory($selectedCategory);
@@ -31,7 +31,7 @@ if ($selectedCategory !== 'all') {
     $products = $warehouseController->getInventorySummary();
 }
 
-// Обработка формы выдачи товара
+// Обробка форми видачі товару
 $message = '';
 $error = '';
 
@@ -40,23 +40,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = true;
         $transactionResults = [];
         
-        // Обработка каждого товара из формы
+        // Обробка кожного товару з форми
         foreach ($_POST['product_id'] as $index => $productId) {
             if (!empty($productId) && isset($_POST['quantity'][$index]) && $_POST['quantity'][$index] > 0) {
                 $quantity = (int)$_POST['quantity'][$index];
                 $notes = $_POST['notes'][$index] ?? '';
                 $department = $_POST['department'][$index] ?? '';
                 
-                // Формируем примечание с указанием отдела
-                $fullNotes = "Выдано в отдел: " . $department . ". " . $notes;
+                // Формуємо примітку з вказанням відділу
+                $fullNotes = "Видано у відділ: " . $department . ". " . $notes;
                 
-                // Создаем транзакцию (расход товара)
+                // Створюємо транзакцію (видаток товару)
                 $result = $warehouseController->addTransaction(
                     $productId,
                     $quantity,
-                    'out', // тип - расход
-                    0, // нет ссылки на заказ
-                    'adjustment', // тип ссылки
+                    'out', // тип - видаток
+                    0, // немає посилання на замовлення
+                    'adjustment', // тип посилання
                     $fullNotes,
                     $currentUser['id']
                 );
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $productDetails = $warehouseController->getProductDetails($productId);
                     $transactionResults[] = [
                         'success' => false,
-                        'product_name' => $productDetails ? $productDetails['name'] : 'Неизвестный товар',
+                        'product_name' => $productDetails ? $productDetails['name'] : 'Невідомий товар',
                         'quantity' => $quantity,
                         'unit' => $productDetails ? $productDetails['unit'] : '',
                         'message' => $result['message']
@@ -85,12 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         if ($success) {
-            $message = "Товары успешно выданы со склада";
+            $message = "Товари успішно видано зі складу";
         } else {
-            $error = "Возникли ошибки при выдаче некоторых товаров";
+            $error = "Виникли помилки при видачі деяких товарів";
         }
         
-        // Обновляем список товаров
+        // Оновлюємо список товарів
         if ($selectedCategory !== 'all') {
             $products = $warehouseController->getProductsByCategory($selectedCategory);
         } else {
@@ -99,49 +99,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Отделы для выпадающего списка
+// Відділи для випадаючого списку
 $departments = [
-    'production' => 'Производство',
+    'production' => 'Виробництво',
     'bottling' => 'Розлив',
-    'packaging' => 'Упаковка',
-    'laboratory' => 'Лаборатория',
+    'packaging' => 'Пакування',
+    'laboratory' => 'Лабораторія',
     'marketing' => 'Маркетинг',
-    'administration' => 'Администрация',
-    'other' => 'Другое'
+    'administration' => 'Адміністрація',
+    'other' => 'Інше'
 ];
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Выдача товаров - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Видача товарів - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-purple-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (<?php echo $currentUser['role'] === 'admin' ? 'Администратор' : 'Начальник склада'; ?>)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (<?php echo $currentUser['role'] === 'admin' ? 'Адміністратор' : 'Начальник складу'; ?>)</span>
                 <a href="../../controllers/logout.php" class="bg-purple-700 hover:bg-purple-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -150,7 +150,7 @@ $departments = [
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500"><?php echo $currentUser['role'] === 'admin' ? 'Администратор' : 'Начальник склада'; ?></p>
+                        <p class="text-sm text-gray-500"><?php echo $currentUser['role'] === 'admin' ? 'Адміністратор' : 'Начальник складу'; ?></p>
                     </div>
                 </div>
                 
@@ -158,51 +158,51 @@ $departments = [
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель управління</span>
                         </a>
                     </li>
                     <li>
                         <a href="inventory.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Инвентаризация</span>
+                            <span>Інвентаризація</span>
                         </a>
                     </li>
                     <li>
                         <a href="receive.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-truck-loading w-5 mr-2"></i>
-                            <span>Приём товаров</span>
+                            <span>Прийом товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="issue.php" class="flex items-center p-2 bg-purple-100 text-purple-700 rounded font-medium">
                             <i class="fas fa-dolly w-5 mr-2"></i>
-                            <span>Выдача товаров</span>
+                            <span>Видача товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="transactions.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-exchange-alt w-5 mr-2"></i>
-                            <span>История транзакций</span>
+                            <span>Історія транзакцій</span>
                         </a>
                     </li>
                     <?php if ($currentUser['role'] === 'admin'): ?>
                     <li>
                         <a href="../admin/dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-user-shield w-5 mr-2"></i>
-                            <span>Панель администратора</span>
+                            <span>Панель адміністратора</span>
                         </a>
                     </li>
                     <?php endif; ?>
                 </ul>
             </div>
             
-            <!-- Блок категорий -->
+            <!-- Блок категорій -->
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 class="font-semibold text-lg mb-3">Категории</h3>
+                <h3 class="font-semibold text-lg mb-3">Категорії</h3>
                 <ul class="space-y-1">
                     <li>
                         <a href="?category=all" class="<?php echo $selectedCategory === 'all' ? 'text-purple-600 font-medium' : 'text-gray-600'; ?> hover:text-purple-800 block py-1">
-                            Все категории
+                            Всі категорії
                         </a>
                     </li>
                     <?php foreach ($categories as $code => $name): ?>
@@ -215,28 +215,28 @@ $departments = [
                 </ul>
             </div>
             
-            <!-- Блок с инструкциями -->
+            <!-- Блок з інструкціями -->
             <div class="bg-white rounded-lg shadow-md p-4">
-                <h3 class="font-semibold text-lg mb-3">Инструкции</h3>
+                <h3 class="font-semibold text-lg mb-3">Інструкції</h3>
                 <div class="text-sm text-gray-600 space-y-2">
-                    <p>1. Выберите категорию товаров.</p>
-                    <p>2. Заполните форму выдачи, указав товар, количество и отдел-получатель.</p>
-                    <p>3. При необходимости добавьте примечания.</p>
-                    <p>4. Нажмите "Выдать товары" для завершения процесса.</p>
+                    <p>1. Виберіть категорію товарів.</p>
+                    <p>2. Заповніть форму видачі, вказавши товар, кількість і відділ-отримувач.</p>
+                    <p>3. За необхідності додайте примітки.</p>
+                    <p>4. Натисніть "Видати товари" для завершення процесу.</p>
                     <div class="mt-4 p-2 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800">
-                        <p class="font-medium">Примечание:</p>
-                        <p>Убедитесь, что на складе достаточно товара перед выдачей.</p>
+                        <p class="font-medium">Примітка:</p>
+                        <p>Переконайтеся, що на складі достатньо товару перед видачею.</p>
                     </div>
                 </div>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
-            <!-- Форма выдачи товаров -->
+            <!-- Форма видачі товарів -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Выдача товаров со склада</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Видача товарів зі складу</h2>
                 </div>
                 
                 <?php if ($message): ?>
@@ -279,7 +279,7 @@ $departments = [
                 
                 <form method="POST" action="" id="issueForm">
                     <div class="mb-6 p-6 bg-gray-50 rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Форма выдачи товаров</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Форма видачі товарів</h3>
                         
                         <div id="issueItems">
                             <div class="mb-2 pb-2 border-b border-gray-200">
@@ -288,16 +288,16 @@ $departments = [
                                         <label class="block text-xs font-medium text-gray-700">Товар</label>
                                     </div>
                                     <div class="col-span-2">
-                                        <label class="block text-xs font-medium text-gray-700">Текущий запас</label>
+                                        <label class="block text-xs font-medium text-gray-700">Поточний запас</label>
                                     </div>
                                     <div class="col-span-2">
-                                        <label class="block text-xs font-medium text-gray-700">Количество</label>
+                                        <label class="block text-xs font-medium text-gray-700">Кількість</label>
                                     </div>
                                     <div class="col-span-3">
-                                        <label class="block text-xs font-medium text-gray-700">Отдел-получатель</label>
+                                        <label class="block text-xs font-medium text-gray-700">Відділ-отримувач</label>
                                     </div>
                                     <div class="col-span-1">
-                                        <label class="block text-xs text-transparent">Действие</label>
+                                        <label class="block text-xs text-transparent">Дія</label>
                                     </div>
                                 </div>
                             </div>
@@ -306,7 +306,7 @@ $departments = [
                                 <div class="grid grid-cols-12 gap-2 items-center">
                                     <div class="col-span-4">
                                         <select name="product_id[]" required class="product-select block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
-                                            <option value="">Выберите товар</option>
+                                            <option value="">Виберіть товар</option>
                                             <?php foreach ($products as $product): ?>
                                             <option value="<?php echo $product['id']; ?>" 
                                                    data-stock="<?php echo $product['quantity']; ?>"
@@ -322,7 +322,7 @@ $departments = [
                                     </div>
                                     <div class="col-span-2">
                                         <div class="flex items-center">
-                                            <input type="number" name="quantity[]" required min="1" placeholder="Кол-во"
+                                            <input type="number" name="quantity[]" required min="1" placeholder="К-ть"
                                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                                             <span class="unit ml-1 text-sm text-gray-500"></span>
                                         </div>
@@ -330,7 +330,7 @@ $departments = [
                                     <div class="col-span-3">
                                         <select name="department[]" required
                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
-                                            <option value="">Выберите отдел</option>
+                                            <option value="">Виберіть відділ</option>
                                             <?php foreach ($departments as $code => $name): ?>
                                             <option value="<?php echo $code; ?>"><?php echo $name; ?></option>
                                             <?php endforeach; ?>
@@ -345,7 +345,7 @@ $departments = [
                                 </div>
                                 <div class="grid grid-cols-12 gap-2">
                                     <div class="col-span-11">
-                                        <input type="text" name="notes[]" placeholder="Примечание (необязательно)"
+                                        <input type="text" name="notes[]" placeholder="Примітка (необов'язково)"
                                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                                     </div>
                                     <div class="col-span-1"></div>
@@ -355,44 +355,44 @@ $departments = [
                         
                         <div class="mt-4">
                             <button type="button" id="addItemButton" class="text-purple-600 hover:text-purple-800">
-                                <i class="fas fa-plus mr-1"></i> Добавить еще товар
+                                <i class="fas fa-plus mr-1"></i> Додати ще товар
                             </button>
                         </div>
                         
                         <div class="mt-6 flex justify-end">
                             <button type="submit" name="issue_items" class="bg-purple-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-purple-700">
-                                <i class="fas fa-dolly mr-1"></i> Выдать товары
+                                <i class="fas fa-dolly mr-1"></i> Видати товари
                             </button>
                         </div>
                     </div>
                 </form>
             </div>
             
-            <!-- Таблица доступных товаров -->
+            <!-- Таблиця доступних товарів -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Доступные товары на складе</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Доступні товари на складі</h2>
                 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Название
+                                    Назва
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Категория
+                                    Категорія
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Текущий запас
+                                    Поточний запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Мин. запас
+                                    Мін. запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Статус
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Действие
+                                    Дія
                                 </th>
                             </tr>
                         </thead>
@@ -400,7 +400,7 @@ $departments = [
                             <?php if (empty($products)): ?>
                             <tr>
                                 <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Товары не найдены
+                                    Товари не знайдено
                                 </td>
                             </tr>
                             <?php else: ?>
@@ -421,18 +421,18 @@ $departments = [
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if ($product['quantity'] <= $product['min_stock']): ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Низкий запас
+                                            Низький запас
                                         </span>
                                         <?php else: ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            В наличии
+                                            В наявності
                                         </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button type="button" class="text-purple-600 hover:text-purple-900" 
                                                 onclick="selectProduct(<?php echo $product['id']; ?>)">
-                                            Выдать
+                                            Видати
                                         </button>
                                     </td>
                                 </tr>
@@ -447,29 +447,29 @@ $departments = [
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Инициализация обработчиков событий для первой строки
+            // Ініціалізація обробників подій для першого рядка
             initializeProductSelect(document.querySelector('.product-select'));
             
-            // Кнопка добавления товара
+            // Кнопка додавання товару
             document.getElementById('addItemButton').addEventListener('click', addItemRow);
         });
         
-        // Счетчик для уникальных идентификаторов строк
+        // Лічильник для унікальних ідентифікаторів рядків
         let rowCounter = 1;
         
-        // Добавление новой строки товара
+        // Додавання нового рядка товару
         function addItemRow() {
             const itemsContainer = document.getElementById('issueItems');
             const template = document.querySelector('.issueItemRow').cloneNode(true);
             
-            // Очищаем значения полей
+            // Очищаємо значення полів
             const productSelect = template.querySelector('.product-select');
             productSelect.selectedIndex = 0;
             
@@ -477,27 +477,27 @@ $departments = [
             template.querySelector('select[name="department[]"]').selectedIndex = 0;
             template.querySelector('input[name="notes[]"]').value = '';
             
-            // Обновляем отображение текущего запаса и единиц измерения
+            // Оновлюємо відображення поточного запасу та одиниць виміру
             template.querySelector('.current-stock').textContent = '-';
             template.querySelector('.unit').textContent = '';
             
-            // Включаем кнопку удаления
+            // Вмикаємо кнопку видалення
             template.querySelector('button[onclick="removeItemRow(this)"]').disabled = false;
             
-            // Инициализируем обработчики для селекта товара
+            // Ініціалізуємо обробники для селекта товару
             initializeProductSelect(productSelect);
             
-            // Добавляем в контейнер
+            // Додаємо в контейнер
             itemsContainer.appendChild(template);
         }
         
-        // Удаление строки товара
+        // Видалення рядка товару
         function removeItemRow(button) {
             const row = button.closest('.issueItemRow');
             row.remove();
         }
         
-        // Инициализация селекта товара
+        // Ініціалізація селекта товару
         function initializeProductSelect(select) {
             select.addEventListener('change', function() {
                 const row = this.closest('.issueItemRow');
@@ -518,33 +518,33 @@ $departments = [
             });
         }
         
-        // Выбор товара из таблицы
+        // Вибір товару з таблиці
         function selectProduct(productId) {
-            // Если есть строки с пустым товаром, используем первую из них
+            // Якщо є рядки з порожнім товаром, використовуємо перший з них
             const emptyRows = Array.from(document.querySelectorAll('.product-select')).filter(select => !select.value);
             
             if (emptyRows.length > 0) {
                 const select = emptyRows[0];
                 select.value = productId;
-                // Эмулируем событие change для обновления UI
+                // Емулюємо подію change для оновлення UI
                 const event = new Event('change', { bubbles: true });
                 select.dispatchEvent(event);
                 
-                // Прокручиваем к форме
+                // Прокручуємо до форми
                 document.getElementById('issueForm').scrollIntoView({ behavior: 'smooth' });
             } else {
-                // Если нет пустых строк, добавляем новую
+                // Якщо немає порожніх рядків, додаємо новий
                 addItemRow();
                 
-                // Находим только что добавленную строку и выбираем товар
+                // Знаходимо щойно доданий рядок і вибираємо товар
                 const newSelect = document.querySelector('.issueItemRow:last-child .product-select');
                 newSelect.value = productId;
                 
-                // Эмулируем событие change для обновления UI
+                // Емулюємо подію change для оновлення UI
                 const event = new Event('change', { bubbles: true });
                 newSelect.dispatchEvent(event);
                 
-                // Прокручиваем к форме
+                // Прокручуємо до форми
                 document.getElementById('issueForm').scrollIntoView({ behavior: 'smooth' });
             }
         }

@@ -1,8 +1,8 @@
 <?php
 // views/purchasing/messages.php
-// Страница сообщений для менеджера по закупкам
+// Сторінка повідомлень для менеджера із закупівель
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/PurchasingController.php';
 require_once '../../controllers/SupplierController.php';
@@ -11,15 +11,15 @@ $authController = new AuthController();
 $purchasingController = new PurchasingController();
 $supplierController = new SupplierController();
 
-// Получение данных для дашборда
+// Отримання даних для дашборду
 $currentUser = $authController->getCurrentUser();
 $supplierId = $supplierController->getSupplierIdByUserId($currentUser['id']);
 
 if (!$supplierId) {
-    // Если данные поставщика не найдены, отображаем ошибку
-    $error = "Ошибка: данные поставщика не найдены. Обратитесь к администратору.";
+    // Якщо дані постачальника не знайдені, відображаємо помилку
+    $error = "Помилка: дані постачальника не знайдені. Зверніться до адміністратора.";
 } else {
-    // Получаем данные для отображения
+    // Отримуємо дані для відображення
     $supplierInfo = $supplierController->getSupplierInfo($supplierId);
     $pendingOrders = $supplierController->getOrdersByStatus($supplierId, 'pending');
     $approvedOrders = $supplierController->getOrdersByStatus($supplierId, 'approved');
@@ -28,18 +28,18 @@ if (!$supplierId) {
     $salesStats = $supplierController->getSupplierSalesStats($supplierId);
 }
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('supplier')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для страницы
+// Отримання даних для сторінки
 $currentUser = $authController->getCurrentUser();
 $allMessages = $purchasingController->getAllMessages($currentUser['id']);
 $recipients = $purchasingController->getPotentialMessageRecipients();
 
-// Разделение на входящие и исходящие
+// Розподіл на вхідні та вихідні
 $receivedMessages = array_filter($allMessages, function($msg) {
     return $msg['type'] === 'received';
 });
@@ -48,44 +48,44 @@ $sentMessages = array_filter($allMessages, function($msg) {
     return $msg['type'] === 'sent';
 });
 
-// Подсчет непрочитанных сообщений
+// Підрахунок непрочитаних повідомлень
 $unreadCount = count(array_filter($receivedMessages, function($msg) {
     return $msg['is_read'] == 0;
 }));
 
-// Обработка просмотра сообщения
+// Обробка перегляду повідомлення
 $viewMessage = null;
 if (isset($_GET['view']) && !empty($_GET['view'])) {
     $messageId = $_GET['view'];
     $viewMessage = $purchasingController->getMessage($messageId, $currentUser['id']);
 }
 
-// Обработка ответа на сообщение
+// Обробка відповіді на повідомлення
 $replyToMessage = null;
 if (isset($_GET['reply']) && !empty($_GET['reply'])) {
     $messageId = $_GET['reply'];
     $replyToMessage = $purchasingController->getMessage($messageId, $currentUser['id']);
 }
 
-// Обработка действий с сообщениями
+// Обробка дій з повідомленнями
 $message = '';
 $error = '';
 
-// Отправка нового сообщения
+// Відправлення нового повідомлення
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     $receiverId = $_POST['receiver_id'] ?? '';
     $subject = $_POST['subject'] ?? '';
     $messageContent = $_POST['message'] ?? '';
     
     if (empty($receiverId)) {
-        $error = "Необходимо выбрать получателя";
+        $error = "Необхідно вибрати отримувача";
     } elseif (empty($messageContent)) {
-        $error = "Текст сообщения не может быть пустым";
+        $error = "Текст повідомлення не може бути порожнім";
     } else {
         $result = $purchasingController->sendMessage($currentUser['id'], $receiverId, $subject, $messageContent);
         if ($result['success']) {
             $message = $result['message'];
-            // Обновляем список сообщений
+            // Оновлюємо список повідомлень
             $allMessages = $purchasingController->getAllMessages($currentUser['id']);
             $receivedMessages = array_filter($allMessages, function($msg) {
                 return $msg['type'] === 'received';
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     }
 }
 
-// Определение активной вкладки
+// Визначення активної вкладки
 $activeTab = 'inbox';
 if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
     $activeTab = 'sent';
@@ -108,36 +108,36 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сообщения - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Повідомлення - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-teal-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Менеджер по закупкам)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Менеджер із закупівель)</span>
                 <a href="../../controllers/logout.php" class="bg-teal-700 hover:bg-teal-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний вміст -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -154,13 +154,13 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="orders.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Заказы</span>
+                            <span>Замовлення</span>
                             <?php if (count($pendingOrders) > 0): ?>
                             <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 <?php echo count($pendingOrders); ?>
@@ -171,13 +171,13 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     <li>
                         <a href="products.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Мои товары</span>
+                            <span>Мої товари</span>
                         </a>
                     </li>
                     <li>
                         <a href="messages.php" class="flex items-center p-2 bg-amber-100 text-amber-700 rounded font-medium">
                             <i class="fas fa-envelope w-5 mr-2"></i>
-                            <span>Сообщения</span>
+                            <span>Повідомлення</span>
                             <?php if (count($unreadMessages) > 0): ?>
                             <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 <?php echo count($unreadMessages); ?>
@@ -188,32 +188,32 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     <li>
                         <a href="profile.php" class="flex items-center p-2 text-gray-700 hover:bg-amber-50 rounded font-medium">
                             <i class="fas fa-user-cog w-5 mr-2"></i>
-                            <span>Мой профиль</span>
+                            <span>Мій профіль</span>
                         </a>
                     </li>
                 </ul>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний вміст -->
         <main class="w-full md:w-3/4">
             <?php if (isset($_GET['view']) && $viewMessage): ?>
-                <!-- Режим просмотра сообщения -->
+                <!-- Режим перегляду повідомлення -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <div class="flex justify-between items-start mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">
                             <a href="messages.php" class="text-teal-600 hover:text-teal-800 mr-2">
                                 <i class="fas fa-arrow-left"></i>
                             </a>
-                            <?php echo htmlspecialchars($viewMessage['subject'] ? $viewMessage['subject'] : '(без темы)'); ?>
+                            <?php echo htmlspecialchars($viewMessage['subject'] ? $viewMessage['subject'] : '(без теми)'); ?>
                         </h2>
                     </div>
                     
-                    <!-- Информация о сообщении -->
+                    <!-- Інформація про повідомлення -->
                     <div class="bg-gray-50 p-4 rounded-lg mb-6">
                         <div class="flex justify-between mb-2">
                             <div>
-                                <span class="text-gray-500">От:</span>
+                                <span class="text-gray-500">Від:</span>
                                 <span class="font-medium"><?php echo htmlspecialchars($viewMessage['sender_name']); ?></span>
                                 <span class="text-gray-500">(<?php echo htmlspecialchars($viewMessage['sender_email']); ?>)</span>
                             </div>
@@ -228,30 +228,30 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                         </div>
                     </div>
                     
-                    <!-- Тело сообщения -->
+                    <!-- Тіло повідомлення -->
                     <div class="prose max-w-none mb-6">
                         <?php echo nl2br(htmlspecialchars($viewMessage['message'])); ?>
                     </div>
                     
-                    <!-- Кнопки действий -->
+                    <!-- Кнопки дій -->
                     <div class="flex justify-end space-x-3">
                         <a href="messages.php" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded">
                             <i class="fas fa-arrow-left mr-1"></i> Назад
                         </a>
                         <a href="?reply=<?php echo $viewMessage['id']; ?>" class="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded">
-                            <i class="fas fa-reply mr-1"></i> Ответить
+                            <i class="fas fa-reply mr-1"></i> Відповісти
                         </a>
                     </div>
                 </div>
             <?php elseif (isset($_GET['reply']) && $replyToMessage): ?>
-                <!-- Режим ответа на сообщение -->
+                <!-- Режим відповіді на повідомлення -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <div class="flex justify-between items-start mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">
                             <a href="messages.php" class="text-teal-600 hover:text-teal-800 mr-2">
                                 <i class="fas fa-arrow-left"></i>
                             </a>
-                            Ответ на сообщение
+                            Відповідь на повідомлення
                         </h2>
                     </div>
                     
@@ -267,15 +267,15 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Форма ответа -->
+                    <!-- Форма відповіді -->
                     <form method="POST" action="">
                         <div class="mb-4">
-                            <label for="receiver_id" class="block text-sm font-medium text-gray-700 mb-2">Получатель</label>
+                            <label for="receiver_id" class="block text-sm font-medium text-gray-700 mb-2">Отримувач</label>
                             <select id="receiver_id" name="receiver_id" required
                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm">
-                                <option value="">Выберите получателя</option>
+                                <option value="">Виберіть отримувача</option>
                                 <?php 
-                                // Группируем получателей по ролям
+                                // Групуємо отримувачів за ролями
                                 $groupedRecipients = [];
                                 foreach ($recipients as $recipient) {
                                     $roleGroup = $recipient['role_name'] ?? $recipient['role'];
@@ -285,7 +285,7 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                                     $groupedRecipients[$roleGroup][] = $recipient;
                                 }
                                 
-                                // Выводим получателей сгруппированными
+                                // Виводимо отримувачів згрупованими
                                 foreach ($groupedRecipients as $group => $groupRecipients):
                                 ?>
                                 <optgroup label="<?php echo htmlspecialchars($group); ?>">
@@ -306,34 +306,34 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                         <div class="mb-4">
                             <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Тема</label>
                             <input type="text" id="subject" name="subject" 
-                                   value="Re: <?php echo htmlspecialchars($replyToMessage['subject'] ?: '(без темы)'); ?>"
+                                   value="Re: <?php echo htmlspecialchars($replyToMessage['subject'] ?: '(без теми)'); ?>"
                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm">
                         </div>
                         
                         <div class="mb-4">
-                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Сообщение</label>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Повідомлення</label>
                             <textarea id="message" name="message" rows="10" required
                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"><?php 
-                                     echo "\n\n\n--- Исходное сообщение ---\nОт: " . $replyToMessage['sender_name'] . "\nДата: " . date('d.m.Y H:i', strtotime($replyToMessage['created_at'])) . "\n\n" . $replyToMessage['message'];
+                                     echo "\n\n\n--- Вихідне повідомлення ---\nВід: " . $replyToMessage['sender_name'] . "\nДата: " . date('d.m.Y H:i', strtotime($replyToMessage['created_at'])) . "\n\n" . $replyToMessage['message'];
                                      ?></textarea>
                         </div>
                         
                         <div class="flex justify-end space-x-3">
                             <a href="messages.php" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded">
-                                Отмена
+                                Скасувати
                             </a>
                             <button type="submit" name="send_message" class="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded">
-                                <i class="fas fa-paper-plane mr-1"></i> Отправить
+                                <i class="fas fa-paper-plane mr-1"></i> Надіслати
                             </button>
                         </div>
                     </form>
                 </div>
             <?php else: ?>
-                <!-- Режим списка сообщений -->
+                <!-- Режим списку повідомлень -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">
-                            <?php echo $activeTab === 'inbox' ? 'Входящие сообщения' : 'Отправленные сообщения'; ?>
+                            <?php echo $activeTab === 'inbox' ? 'Вхідні повідомлення' : 'Надіслані повідомлення'; ?>
                         </h2>
                     </div>
                     
@@ -349,17 +349,17 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Форма написания сообщения (скрыта по умолчанию) -->
+                    <!-- Форма написання повідомлення (прихована за замовчуванням) -->
                     <div id="composeForm" class="hidden bg-gray-50 p-6 rounded-lg mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Новое сообщение</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Нове повідомлення</h3>
                         <form method="POST" action="">
                             <div class="mb-4">
-                                <label for="compose_receiver_id" class="block text-sm font-medium text-gray-700 mb-2">Получатель</label>
+                                <label for="compose_receiver_id" class="block text-sm font-medium text-gray-700 mb-2">Отримувач</label>
                                 <select id="compose_receiver_id" name="receiver_id" required
                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm">
-                                    <option value="">Выберите получателя</option>
+                                    <option value="">Виберіть отримувача</option>
                                     <?php 
-                                    // Группируем получателей по ролям
+                                    // Групуємо отримувачів за ролями
                                     $groupedRecipients = [];
                                     foreach ($recipients as $recipient) {
                                         $roleGroup = $recipient['role_name'] ?? $recipient['role'];
@@ -369,7 +369,7 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                                         $groupedRecipients[$roleGroup][] = $recipient;
                                     }
                                     
-                                    // Выводим получателей сгруппированными
+                                    // Виводимо отримувачів згрупованими
                                     foreach ($groupedRecipients as $group => $groupRecipients):
                                     ?>
                                     <optgroup label="<?php echo htmlspecialchars($group); ?>">
@@ -393,27 +393,27 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                             </div>
                             
                             <div class="mb-4">
-                                <label for="compose_message" class="block text-sm font-medium text-gray-700 mb-2">Сообщение</label>
+                                <label for="compose_message" class="block text-sm font-medium text-gray-700 mb-2">Повідомлення</label>
                                 <textarea id="compose_message" name="message" rows="6" required
                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"></textarea>
                             </div>
                             
                             <div class="flex justify-end space-x-3">
                                 <button type="button" id="cancelComposeBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    Отмена
+                                    Скасувати
                                 </button>
                                 <button type="submit" name="send_message" class="bg-teal-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-teal-700">
-                                    <i class="fas fa-paper-plane mr-1"></i> Отправить
+                                    <i class="fas fa-paper-plane mr-1"></i> Надіслати
                                 </button>
                             </div>
                         </form>
                     </div>
                     
-                    <!-- Список сообщений -->
+                    <!-- Список повідомлень -->
                     <?php if ($activeTab === 'inbox'): ?>
                         <?php if (empty($receivedMessages)): ?>
                         <div class="text-center py-8 bg-gray-50 rounded-lg">
-                            <p class="text-gray-500">У вас нет входящих сообщений</p>
+                            <p class="text-gray-500">У вас немає вхідних повідомлень</p>
                         </div>
                         <?php else: ?>
                         <div class="space-y-4">
@@ -431,17 +431,17 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                                     </div>
                                 </div>
                                 <a href="?view=<?php echo $msg['id']; ?>" class="block hover:bg-gray-50 rounded p-1">
-                                    <h3 class="text-lg text-gray-900 mb-1"><?php echo htmlspecialchars($msg['subject'] ? $msg['subject'] : '(без темы)'); ?></h3>
+                                    <h3 class="text-lg text-gray-900 mb-1"><?php echo htmlspecialchars($msg['subject'] ? $msg['subject'] : '(без теми)'); ?></h3>
                                     <p class="text-gray-500 truncate">
                                         <?php echo htmlspecialchars(substr($msg['message'], 0, 100) . (strlen($msg['message']) > 100 ? '...' : '')); ?>
                                     </p>
                                 </a>
                                 <div class="mt-2 flex justify-end space-x-2">
                                     <a href="?view=<?php echo $msg['id']; ?>" class="text-teal-600 hover:text-teal-800 text-sm">
-                                        <i class="fas fa-eye mr-1"></i> Просмотр
+                                        <i class="fas fa-eye mr-1"></i> Перегляд
                                     </a>
                                     <a href="?reply=<?php echo $msg['id']; ?>" class="text-teal-600 hover:text-teal-800 text-sm">
-                                        <i class="fas fa-reply mr-1"></i> Ответить
+                                        <i class="fas fa-reply mr-1"></i> Відповісти
                                     </a>
                                 </div>
                             </div>
@@ -451,7 +451,7 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                     <?php else: ?>
                         <?php if (empty($sentMessages)): ?>
                         <div class="text-center py-8 bg-gray-50 rounded-lg">
-                            <p class="text-gray-500">У вас нет отправленных сообщений</p>
+                            <p class="text-gray-500">У вас немає надісланих повідомлень</p>
                         </div>
                         <?php else: ?>
                         <div class="space-y-4">
@@ -466,14 +466,14 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
                                     </div>
                                 </div>
                                 <a href="?view=<?php echo $msg['id']; ?>" class="block hover:bg-gray-50 rounded p-1">
-                                    <h3 class="text-lg text-gray-900 mb-1"><?php echo htmlspecialchars($msg['subject'] ? $msg['subject'] : '(без темы)'); ?></h3>
+                                    <h3 class="text-lg text-gray-900 mb-1"><?php echo htmlspecialchars($msg['subject'] ? $msg['subject'] : '(без теми)'); ?></h3>
                                     <p class="text-gray-500 truncate">
                                         <?php echo htmlspecialchars(substr($msg['message'], 0, 100) . (strlen($msg['message']) > 100 ? '...' : '')); ?>
                                     </p>
                                 </a>
                                 <div class="mt-2 flex justify-end">
                                     <a href="?view=<?php echo $msg['id']; ?>" class="text-teal-600 hover:text-teal-800 text-sm">
-                                        <i class="fas fa-eye mr-1"></i> Просмотр
+                                        <i class="fas fa-eye mr-1"></i> Перегляд
                                     </a>
                                 </div>
                             </div>
@@ -488,14 +488,14 @@ if (isset($_GET['tab']) && $_GET['tab'] === 'sent') {
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Обработка кнопки "Написать сообщение"
+            // Обробка кнопки "Написати повідомлення"
             const composeButton = document.getElementById('composeButton');
             const composeForm = document.getElementById('composeForm');
             const cancelComposeBtn = document.getElementById('cancelComposeBtn');

@@ -1,26 +1,26 @@
 <?php
 // views/warehouse/inventory.php
-// Страница для просмотра и управления инвентарем на складе
+// Сторінка для перегляду та управління інвентарем на складі
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/WarehouseController.php';
 
 $authController = new AuthController();
 $warehouseController = new WarehouseController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole(['warehouse', 'admin'])) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для страницы
+// Отримання даних для сторінки
 $currentUser = $authController->getCurrentUser();
 $inventorySummary = $warehouseController->getInventorySummary();
 $lowStockItems = $warehouseController->getLowStockItems();
 
-// Фильтрация по категории
+// Фільтрація за категорією
 $categoryFilter = isset($_GET['category']) ? $_GET['category'] : '';
 if ($categoryFilter) {
     $inventorySummary = array_filter($inventorySummary, function($item) use ($categoryFilter) {
@@ -28,7 +28,7 @@ if ($categoryFilter) {
     });
 }
 
-// Поиск по имени
+// Пошук за ім'ям
 $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 if ($searchTerm) {
     $inventorySummary = array_filter($inventorySummary, function($item) use ($searchTerm) {
@@ -36,25 +36,25 @@ if ($searchTerm) {
     });
 }
 
-// Обработка действий добавления/редактирования товара
+// Обробка дій додавання/редагування товару
 $message = '';
 $error = '';
 $editProduct = null;
 
-// Если это запрос на просмотр деталей или редактирование, получаем данные продукта
+// Якщо це запит на перегляд деталей або редагування, отримуємо дані продукту
 if (isset($_GET['action']) && ($_GET['action'] == 'view' || $_GET['action'] == 'edit') && isset($_GET['id'])) {
     $productId = $_GET['id'];
     $editProduct = $warehouseController->getProductDetails($productId);
     
-    // Если просмотр деталей, получаем историю транзакций
+    // Якщо перегляд деталей, отримуємо історію транзакцій
     if ($_GET['action'] == 'view') {
         $productTransactions = $warehouseController->getProductTransactions($productId);
     }
 }
 
-// Обработка отправки формы
+// Обробка відправки форми
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Добавление нового товара
+    // Додавання нового товару
     if (isset($_POST['add_product'])) {
         $name = trim($_POST['name'] ?? '');
         $category = $_POST['category'] ?? '';
@@ -64,12 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = trim($_POST['description'] ?? '');
         
         if (empty($name) || empty($category) || empty($unit)) {
-            $error = "Необходимо заполнить обязательные поля";
+            $error = "Необхідно заповнити обов'язкові поля";
         } else {
             $result = $warehouseController->addProduct($name, $category, $quantity, $unit, $minStock, $description);
             if ($result['success']) {
                 $message = $result['message'];
-                // Перезагружаем список товаров
+                // Перезавантажуємо список товарів
                 $inventorySummary = $warehouseController->getInventorySummary();
             } else {
                 $error = $result['message'];
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Обновление существующего товара
+    // Оновлення існуючого товару
     if (isset($_POST['update_product'])) {
         $productId = $_POST['product_id'] ?? '';
         $name = trim($_POST['name'] ?? '');
@@ -87,14 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = trim($_POST['description'] ?? '');
         
         if (empty($productId) || empty($name) || empty($category) || empty($unit)) {
-            $error = "Необходимо заполнить обязательные поля";
+            $error = "Необхідно заповнити обов'язкові поля";
         } else {
             $result = $warehouseController->updateProduct($productId, $name, $category, $unit, $minStock, $description);
             if ($result['success']) {
                 $message = $result['message'];
-                // Перезагружаем список товаров
+                // Перезавантажуємо список товарів
                 $inventorySummary = $warehouseController->getInventorySummary();
-                // Обновляем данные товара
+                // Оновлюємо дані товару
                 $editProduct = $warehouseController->getProductDetails($productId);
             } else {
                 $error = $result['message'];
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Добавление транзакции (приход/расход)
+    // Додавання транзакції (надходження/видаток)
     if (isset($_POST['add_transaction'])) {
         $productId = $_POST['product_id'] ?? '';
         $quantity = (int)($_POST['quantity'] ?? 0);
@@ -110,13 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $notes = trim($_POST['notes'] ?? '');
         
         if (empty($productId) || $quantity <= 0 || empty($transactionType)) {
-            $error = "Необходимо заполнить все поля корректно";
+            $error = "Необхідно заповнити всі поля коректно";
         } else {
             $result = $warehouseController->addTransaction(
                 $productId, 
                 $quantity, 
                 $transactionType, 
-                0, // referenceId (нет привязки к заказу)
+                0, // referenceId (немає прив'язки до замовлення)
                 'adjustment', // referenceType
                 $notes, 
                 $currentUser['id']
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($result['success']) {
                 $message = $result['message'];
-                // Перезагружаем данные
+                // Перезавантажуємо дані
                 $inventorySummary = $warehouseController->getInventorySummary();
                 $editProduct = $warehouseController->getProductDetails($productId);
                 $productTransactions = $warehouseController->getProductTransactions($productId);
@@ -135,45 +135,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Определяем названия категорий для отображения
+// Визначаємо назви категорій для відображення
 $categoryNames = [
-    'raw_material' => 'Сырьё',
+    'raw_material' => 'Сировина',
     'packaging' => 'Упаковка',
-    'finished_product' => 'Готовая продукция'
+    'finished_product' => 'Готова продукція'
 ];
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление инвентарем - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Управління інвентарем - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-purple-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (<?php echo $currentUser['role'] === 'admin' ? 'Администратор' : 'Начальник склада'; ?>)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (<?php echo $currentUser['role'] === 'admin' ? 'Адміністратор' : 'Начальник складу'; ?>)</span>
                 <a href="../../controllers/logout.php" class="bg-purple-700 hover:bg-purple-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -182,7 +182,7 @@ $categoryNames = [
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500"><?php echo $currentUser['role'] === 'admin' ? 'Администратор' : 'Начальник склада'; ?></p>
+                        <p class="text-sm text-gray-500"><?php echo $currentUser['role'] === 'admin' ? 'Адміністратор' : 'Начальник складу'; ?></p>
                     </div>
                 </div>
                 
@@ -190,50 +190,50 @@ $categoryNames = [
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель управління</span>
                         </a>
                     </li>
                     <li>
                         <a href="inventory.php" class="flex items-center p-2 bg-purple-100 text-purple-700 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Инвентаризация</span>
+                            <span>Інвентаризація</span>
                         </a>
                     </li>
                     <li>
                         <a href="receive.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-truck-loading w-5 mr-2"></i>
-                            <span>Приём товаров</span>
+                            <span>Прийом товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="issue.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-dolly w-5 mr-2"></i>
-                            <span>Выдача товаров</span>
+                            <span>Видача товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="transactions.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-exchange-alt w-5 mr-2"></i>
-                            <span>История транзакций</span>
+                            <span>Історія транзакцій</span>
                         </a>
                     </li>
                     <?php if ($currentUser['role'] === 'admin'): ?>
                     <li>
                         <a href="../admin/dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-user-shield w-5 mr-2"></i>
-                            <span>Панель администратора</span>
+                            <span>Панель адміністратора</span>
                         </a>
                     </li>
                     <?php endif; ?>
                 </ul>
             </div>
             
-            <!-- Блок с товарами с низким запасом -->
+            <!-- Блок з товарами з низьким запасом -->
             <div class="bg-white rounded-lg shadow-md p-4">
-                <h3 class="font-semibold text-lg mb-3">Товары с низким запасом</h3>
+                <h3 class="font-semibold text-lg mb-3">Товари з низьким запасом</h3>
                 
                 <?php if (empty($lowStockItems)): ?>
-                <p class="text-green-600 text-center py-2">Все товары имеют достаточный запас</p>
+                <p class="text-green-600 text-center py-2">Всі товари мають достатній запас</p>
                 <?php else: ?>
                 <ul class="space-y-2">
                     <?php foreach ($lowStockItems as $item): ?>
@@ -251,24 +251,24 @@ $categoryNames = [
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
             <?php if (isset($_GET['action']) && $_GET['action'] == 'view' && $editProduct): ?>
-            <!-- Режим просмотра деталей товара -->
+            <!-- Режим перегляду деталей товару -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800">
                         <a href="inventory.php" class="text-purple-600 hover:text-purple-800 mr-2">
                             <i class="fas fa-arrow-left"></i>
                         </a>
-                        Детали товара
+                        Деталі товару
                     </h2>
                     <div>
                         <a href="?action=edit&id=<?php echo $editProduct['id']; ?>" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded mr-2">
-                            <i class="fas fa-edit mr-1"></i> Редактировать
+                            <i class="fas fa-edit mr-1"></i> Редагувати
                         </a>
                         <button id="showTransactionForm" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded">
-                            <i class="fas fa-plus mr-1"></i> Новая транзакция
+                            <i class="fas fa-plus mr-1"></i> Нова транзакція
                         </button>
                     </div>
                 </div>
@@ -285,28 +285,28 @@ $categoryNames = [
                 </div>
                 <?php endif; ?>
                 
-                <!-- Форма для добавления транзакции -->
+                <!-- Форма для додавання транзакції -->
                 <div id="transactionForm" class="hidden bg-gray-50 p-6 rounded-lg mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Добавление транзакции</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Додавання транзакції</h3>
                     <form method="POST" action="">
                         <input type="hidden" name="product_id" value="<?php echo $editProduct['id']; ?>">
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label for="transaction_type" class="block text-sm font-medium text-gray-700">Тип транзакции</label>
+                                <label for="transaction_type" class="block text-sm font-medium text-gray-700">Тип транзакції</label>
                                 <select id="transaction_type" name="transaction_type" required 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
-                                    <option value="in">Приход</option>
-                                    <option value="out">Расход</option>
+                                    <option value="in">Надходження</option>
+                                    <option value="out">Видаток</option>
                                 </select>
                             </div>
                             <div>
-                                <label for="quantity" class="block text-sm font-medium text-gray-700">Количество</label>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700">Кількість</label>
                                 <input type="number" id="quantity" name="quantity" required min="1" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                             </div>
                             <div class="md:col-span-3">
-                                <label for="notes" class="block text-sm font-medium text-gray-700">Примечание</label>
+                                <label for="notes" class="block text-sm font-medium text-gray-700">Примітка</label>
                                 <textarea id="notes" name="notes" rows="2" 
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"></textarea>
                             </div>
@@ -314,46 +314,46 @@ $categoryNames = [
                         
                         <div class="mt-6 flex justify-end space-x-3">
                             <button type="button" id="cancelTransactionForm" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Отмена
+                                Скасувати
                             </button>
                             <button type="submit" name="add_transaction" class="bg-purple-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-purple-700">
-                                Добавить транзакцию
+                                Додати транзакцію
                             </button>
                         </div>
                     </form>
                 </div>
                 
-                <!-- Информация о товаре -->
+                <!-- Інформація про товар -->
                 <div class="bg-gray-50 p-6 rounded-lg mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Основна інформація</h3>
                             <dl class="space-y-3">
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Название:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Назва:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo htmlspecialchars($editProduct['name']); ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Категория:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Категорія:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo $categoryNames[$editProduct['category']] ?? $editProduct['category']; ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Единица измерения:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Одиниця виміру:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo htmlspecialchars($editProduct['unit']); ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Описание:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Опис:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2">
-                                        <?php echo htmlspecialchars($editProduct['description'] ?: 'Нет описания'); ?>
+                                        <?php echo htmlspecialchars($editProduct['description'] ?: 'Немає опису'); ?>
                                     </dd>
                                 </div>
                             </dl>
                         </div>
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Запасы</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Запаси</h3>
                             <dl class="space-y-3">
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Текущий запас:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Поточний запас:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2">
                                         <span class="font-semibold <?php echo $editProduct['quantity'] <= $editProduct['min_stock'] ? 'text-red-600' : 'text-green-600'; ?>">
                                             <?php echo $editProduct['quantity'] . ' ' . $editProduct['unit']; ?>
@@ -361,29 +361,29 @@ $categoryNames = [
                                     </dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Минимальный запас:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Мінімальний запас:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo $editProduct['min_stock'] . ' ' . $editProduct['unit']; ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Статус запаса:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Статус запасу:</dt>
                                     <dd class="text-sm col-span-2">
                                         <?php if ($editProduct['quantity'] <= $editProduct['min_stock']): ?>
                                         <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                                            Низкий запас
+                                            Низький запас
                                         </span>
                                         <?php else: ?>
                                         <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                                            Достаточный запас
+                                            Достатній запас
                                         </span>
                                         <?php endif; ?>
                                     </dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Дата создания:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Дата створення:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo date('d.m.Y H:i', strtotime($editProduct['created_at'])); ?></dd>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <dt class="text-sm font-medium text-gray-500">Последнее обновление:</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Останнє оновлення:</dt>
                                     <dd class="text-sm text-gray-900 col-span-2"><?php echo date('d.m.Y H:i', strtotime($editProduct['updated_at'])); ?></dd>
                                 </div>
                             </dl>
@@ -391,10 +391,10 @@ $categoryNames = [
                     </div>
                 </div>
                 
-                <!-- История транзакций -->
-                <h3 class="text-lg font-medium text-gray-900 mb-4">История транзакций</h3>
+                <!-- Історія транзакцій -->
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Історія транзакцій</h3>
                 <?php if (empty($productTransactions)): ?>
-                <p class="text-gray-500 text-center py-6">Транзакции отсутствуют</p>
+                <p class="text-gray-500 text-center py-6">Транзакції відсутні</p>
                 <?php else: ?>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -407,13 +407,13 @@ $categoryNames = [
                                     Тип
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Количество
+                                    Кількість
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Пользователь
+                                    Користувач
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Примечание
+                                    Примітка
                                 </th>
                             </tr>
                         </thead>
@@ -426,11 +426,11 @@ $categoryNames = [
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <?php if ($transaction['transaction_type'] == 'in'): ?>
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Приход
+                                        Надходження
                                     </span>
                                     <?php else: ?>
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        Расход
+                                        Видаток
                                     </span>
                                     <?php endif; ?>
                                 </td>
@@ -452,14 +452,14 @@ $categoryNames = [
             </div>
             
             <?php elseif (isset($_GET['action']) && $_GET['action'] == 'edit' && $editProduct): ?>
-            <!-- Режим редактирования товара -->
+            <!-- Режим редагування товару -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800">
                         <a href="?action=view&id=<?php echo $editProduct['id']; ?>" class="text-purple-600 hover:text-purple-800 mr-2">
                             <i class="fas fa-arrow-left"></i>
                         </a>
-                        Редактирование товара
+                        Редагування товару
                     </h2>
                 </div>
                 
@@ -475,40 +475,40 @@ $categoryNames = [
                 </div>
                 <?php endif; ?>
                 
-                <!-- Форма редактирования товара -->
+                <!-- Форма редагування товару -->
                 <form method="POST" action="">
                     <input type="hidden" name="product_id" value="<?php echo $editProduct['id']; ?>">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Название товара</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Назва товару</label>
                             <input type="text" id="name" name="name" required
                                    value="<?php echo htmlspecialchars($editProduct['name']); ?>"
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700">Категория</label>
+                            <label for="category" class="block text-sm font-medium text-gray-700">Категорія</label>
                             <select id="category" name="category" required 
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
-                                <option value="raw_material" <?php echo $editProduct['category'] == 'raw_material' ? 'selected' : ''; ?>>Сырьё</option>
+                                <option value="raw_material" <?php echo $editProduct['category'] == 'raw_material' ? 'selected' : ''; ?>>Сировина</option>
                                 <option value="packaging" <?php echo $editProduct['category'] == 'packaging' ? 'selected' : ''; ?>>Упаковка</option>
-                                <option value="finished_product" <?php echo $editProduct['category'] == 'finished_product' ? 'selected' : ''; ?>>Готовая продукция</option>
+                                <option value="finished_product" <?php echo $editProduct['category'] == 'finished_product' ? 'selected' : ''; ?>>Готова продукція</option>
                             </select>
                         </div>
                         <div>
-                            <label for="unit" class="block text-sm font-medium text-gray-700">Единица измерения</label>
+                            <label for="unit" class="block text-sm font-medium text-gray-700">Одиниця виміру</label>
                             <input type="text" id="unit" name="unit" required
                                    value="<?php echo htmlspecialchars($editProduct['unit']); ?>"
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="min_stock" class="block text-sm font-medium text-gray-700">Минимальный запас</label>
+                            <label for="min_stock" class="block text-sm font-medium text-gray-700">Мінімальний запас</label>
                             <input type="number" id="min_stock" name="min_stock" required min="0"
                                    value="<?php echo $editProduct['min_stock']; ?>"
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                         </div>
                         <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Описание</label>
+                            <label for="description" class="block text-sm font-medium text-gray-700">Опис</label>
                             <textarea id="description" name="description" rows="3" 
                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"><?php echo htmlspecialchars($editProduct['description']); ?></textarea>
                         </div>
@@ -516,22 +516,22 @@ $categoryNames = [
                     
                     <div class="mt-6 flex justify-end space-x-3">
                         <a href="?action=view&id=<?php echo $editProduct['id']; ?>" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            Отмена
+                            Скасувати
                         </a>
                         <button type="submit" name="update_product" class="bg-purple-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-purple-700">
-                            Сохранить изменения
+                            Зберегти зміни
                         </button>
                     </div>
                 </form>
             </div>
             
             <?php else: ?>
-            <!-- Режим просмотра списка товаров -->
+            <!-- Режим перегляду списку товарів -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Управление инвентарем</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Управління інвентарем</h2>
                     <button id="showAddProductForm" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded">
-                        <i class="fas fa-plus mr-1"></i> Добавить товар
+                        <i class="fas fa-plus mr-1"></i> Додати товар
                     </button>
                 </div>
                 
@@ -547,42 +547,42 @@ $categoryNames = [
                 </div>
                 <?php endif; ?>
                 
-                <!-- Форма добавления товара -->
+                <!-- Форма додавання товару -->
                 <div id="addProductForm" class="hidden bg-gray-50 p-6 rounded-lg mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Добавление нового товара</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Додавання нового товару</h3>
                     <form method="POST" action="">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700">Название товара</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Назва товару</label>
                                 <input type="text" id="name" name="name" required
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="category" class="block text-sm font-medium text-gray-700">Категория</label>
+                                <label for="category" class="block text-sm font-medium text-gray-700">Категорія</label>
                                 <select id="category" name="category" required 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
-                                    <option value="raw_material">Сырьё</option>
+                                    <option value="raw_material">Сировина</option>
                                     <option value="packaging">Упаковка</option>
-                                    <option value="finished_product">Готовая продукция</option>
+                                    <option value="finished_product">Готова продукція</option>
                                 </select>
                             </div>
                             <div>
-                                <label for="quantity" class="block text-sm font-medium text-gray-700">Начальное количество</label>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700">Початкова кількість</label>
                                 <input type="number" id="quantity" name="quantity" required min="0"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="unit" class="block text-sm font-medium text-gray-700">Единица измерения</label>
+                                <label for="unit" class="block text-sm font-medium text-gray-700">Одиниця виміру</label>
                                 <input type="text" id="unit" name="unit" required
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="min_stock" class="block text-sm font-medium text-gray-700">Минимальный запас</label>
+                                <label for="min_stock" class="block text-sm font-medium text-gray-700">Мінімальний запас</label>
                                 <input type="number" id="min_stock" name="min_stock" required min="0"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700">Описание</label>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Опис</label>
                                 <textarea id="description" name="description" rows="2" 
                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"></textarea>
                             </div>
@@ -590,34 +590,34 @@ $categoryNames = [
                         
                         <div class="mt-6 flex justify-end space-x-3">
                             <button type="button" id="cancelAddProduct" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Отмена
+                                Скасувати
                             </button>
                             <button type="submit" name="add_product" class="bg-purple-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-purple-700">
-                                Добавить товар
+                                Додати товар
                             </button>
                         </div>
                     </form>
                 </div>
                 
-                <!-- Фильтры и поиск -->
+                <!-- Фільтри та пошук -->
                 <div class="mb-6 flex flex-wrap items-center justify-between space-y-3 md:space-y-0">
                     <div class="flex space-x-2">
                         <a href="inventory.php" class="<?php echo empty($categoryFilter) ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Все категории
+                            Всі категорії
                         </a>
                         <a href="?category=raw_material" class="<?php echo $categoryFilter === 'raw_material' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Сырьё
+                            Сировина
                         </a>
                         <a href="?category=packaging" class="<?php echo $categoryFilter === 'packaging' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
                             Упаковка
                         </a>
                         <a href="?category=finished_product" class="<?php echo $categoryFilter === 'finished_product' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Готовая продукция
+                            Готова продукція
                         </a>
                     </div>
                     <form method="GET" action="" class="flex max-w-xs">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" 
-                               placeholder="Поиск товаров..." 
+                               placeholder="Пошук товарів..." 
                                class="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
                         <button type="submit" class="inline-flex items-center px-4 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                             <i class="fas fa-search"></i>
@@ -625,28 +625,28 @@ $categoryNames = [
                     </form>
                 </div>
                 
-                <!-- Таблица товаров -->
+                <!-- Таблиця товарів -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Название
+                                    Назва
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Категория
+                                    Категорія
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Мин. запас
+                                    Мін. запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Статус
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Действия
+                                    Дії
                                 </th>
                             </tr>
                         </thead>
@@ -656,9 +656,9 @@ $categoryNames = [
                                 <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                                     <?php 
                                     if ($categoryFilter || $searchTerm) {
-                                        echo 'Товары не найдены. Попробуйте изменить фильтры.';
+                                        echo 'Товари не знайдено. Спробуйте змінити фільтри.';
                                     } else {
-                                        echo 'Товары отсутствуют. Добавьте первый товар.';
+                                        echo 'Товари відсутні. Додайте перший товар.';
                                     }
                                     ?>
                                 </td>
@@ -681,20 +681,20 @@ $categoryNames = [
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if ($item['quantity'] <= $item['min_stock']): ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Низкий запас
+                                            Низький запас
                                         </span>
                                         <?php else: ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            В наличии
+                                            В наявності
                                         </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="?action=view&id=<?php echo $item['id']; ?>" class="text-purple-600 hover:text-purple-900 mr-3">
-                                            Детали
+                                            Деталі
                                         </a>
                                         <a href="?action=edit&id=<?php echo $item['id']; ?>" class="text-indigo-600 hover:text-indigo-900">
-                                            Редактировать
+                                            Редагувати
                                         </a>
                                     </td>
                                 </tr>
@@ -710,14 +710,14 @@ $categoryNames = [
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Форма добавления товара
+            // Форма додавання товару
             const showAddProductFormBtn = document.getElementById('showAddProductForm');
             const cancelAddProductBtn = document.getElementById('cancelAddProduct');
             const addProductForm = document.getElementById('addProductForm');
@@ -734,7 +734,7 @@ $categoryNames = [
                 });
             }
             
-            // Форма добавления транзакции
+            // Форма додавання транзакції
             const showTransactionFormBtn = document.getElementById('showTransactionForm');
             const cancelTransactionFormBtn = document.getElementById('cancelTransactionForm');
             const transactionForm = document.getElementById('transactionForm');

@@ -1,28 +1,28 @@
 <?php
 // views/warehouse/dashboard.php
-// Панель управления для начальника склада
+// Панель управління для начальника складу
 
-// Подключение контроллера авторизации и контроллера склада
+// Підключення контролера авторизації та контролера складу
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/WarehouseController.php';
 
 $authController = new AuthController();
 $warehouseController = new WarehouseController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('warehouse')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для дашборда
+// Отримання даних для дашборду
 $currentUser = $authController->getCurrentUser();
 $inventorySummary = $warehouseController->getInventorySummary();
 $recentTransactions = $warehouseController->getRecentTransactions(5);
 $lowStockItems = $warehouseController->getLowStockItems();
 $topMovingItems = $warehouseController->getTopMovingItems(5);
 
-// Формирование данных для графиков
+// Формування даних для графіків
 $categoryCounts = [];
 foreach ($inventorySummary as $item) {
     $category = $item['category'];
@@ -40,38 +40,38 @@ $chartData = [
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель управления склада - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Панель управління складу - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js для графиков -->
+    <!-- Chart.js для графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-purple-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Начальник склада)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Начальник складу)</span>
                 <a href="../../controllers/logout.php" class="bg-purple-700 hover:bg-purple-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -80,7 +80,7 @@ $chartData = [
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500">Начальник склада</p>
+                        <p class="text-sm text-gray-500">Начальник складу</p>
                     </div>
                 </div>
                 
@@ -88,40 +88,40 @@ $chartData = [
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 bg-purple-100 text-purple-700 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель управління</span>
                         </a>
                     </li>
                     <li>
                         <a href="inventory.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Инвентаризация</span>
+                            <span>Інвентаризація</span>
                         </a>
                     </li>
                     <li>
                         <a href="receive.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-truck-loading w-5 mr-2"></i>
-                            <span>Приём товаров</span>
+                            <span>Прийом товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="issue.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-dolly w-5 mr-2"></i>
-                            <span>Выдача товаров</span>
+                            <span>Видача товарів</span>
                         </a>
                     </li>
                     <li>
                         <a href="transactions.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
                             <i class="fas fa-exchange-alt w-5 mr-2"></i>
-                            <span>История транзакций</span>
+                            <span>Історія транзакцій</span>
                         </a>
                     </li>
                 </ul>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
-            <!-- Карточки с краткой статистикой -->
+            <!-- Картки з короткою статистикою -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center">
@@ -129,7 +129,7 @@ $chartData = [
                             <i class="fas fa-boxes text-blue-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Всего наименований</p>
+                            <p class="text-sm text-gray-500">Всього найменувань</p>
                             <p class="text-2xl font-bold"><?php echo count($inventorySummary); ?></p>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ $chartData = [
                             <i class="fas fa-wine-bottle text-green-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Сырьё (кг)</p>
+                            <p class="text-sm text-gray-500">Сировина (кг)</p>
                             <p class="text-2xl font-bold"><?php echo $categoryCounts['raw_material'] ?? 0; ?></p>
                         </div>
                     </div>
@@ -151,37 +151,37 @@ $chartData = [
                             <i class="fas fa-exclamation-triangle text-red-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Наименований с низким запасом</p>
+                            <p class="text-sm text-gray-500">Найменувань з низьким запасом</p>
                             <p class="text-2xl font-bold"><?php echo count($lowStockItems); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Основные блоки с данными -->
+            <!-- Основні блоки з даними -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- График по категориям -->
+                <!-- Графік за категоріями -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Распределение запасов по категориям</h2>
+                    <h2 class="text-lg font-semibold mb-4">Розподіл запасів за категоріями</h2>
                     <div>
                         <canvas id="inventoryChart" width="400" height="300"></canvas>
                     </div>
                 </div>
                 
-                <!-- Товары с низким запасом -->
+                <!-- Товари з низьким запасом -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Товары с низким запасом</h2>
+                    <h2 class="text-lg font-semibold mb-4">Товари з низьким запасом</h2>
                     <?php if (empty($lowStockItems)): ?>
-                        <p class="text-gray-500 text-center py-6">Все товары имеют достаточный запас.</p>
+                        <p class="text-gray-500 text-center py-6">Всі товари мають достатній запас.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Категория</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Кол-во</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Мин. запас</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Категорія</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">К-ть</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Мін. запас</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -193,9 +193,9 @@ $chartData = [
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <?php 
                                                     $categories = [
-                                                        'raw_material' => 'Сырьё',
+                                                        'raw_material' => 'Сировина',
                                                         'packaging' => 'Упаковка',
-                                                        'finished_product' => 'Готовая продукция'
+                                                        'finished_product' => 'Готова продукція'
                                                     ];
                                                     echo $categories[$item['category']] ?? $item['category']; 
                                                 ?>
@@ -216,11 +216,11 @@ $chartData = [
                     <?php endif; ?>
                 </div>
                 
-                <!-- Последние транзакции -->
+                <!-- Останні транзакції -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Последние транзакции</h2>
+                    <h2 class="text-lg font-semibold mb-4">Останні транзакції</h2>
                     <?php if (empty($recentTransactions)): ?>
-                        <p class="text-gray-500 text-center py-6">Транзакции отсутствуют.</p>
+                        <p class="text-gray-500 text-center py-6">Транзакції відсутні.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -229,7 +229,7 @@ $chartData = [
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Кол-во</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">К-ть</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -244,11 +244,11 @@ $chartData = [
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <?php if ($transaction['transaction_type'] == 'in'): ?>
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Приход
+                                                        Надходження
                                                     </span>
                                                 <?php else: ?>
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        Расход
+                                                        Видаток
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
@@ -262,17 +262,17 @@ $chartData = [
                         </div>
                         <div class="mt-4 text-right">
                             <a href="transactions.php" class="text-sm text-purple-600 hover:text-purple-800">
-                                Показать все транзакции <i class="fas fa-arrow-right ml-1"></i>
+                                Показати всі транзакції <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Топ движущихся товаров -->
+                <!-- Топ рухомих товарів -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Топ активных товаров</h2>
+                    <h2 class="text-lg font-semibold mb-4">Топ активних товарів</h2>
                     <?php if (empty($topMovingItems)): ?>
-                        <p class="text-gray-500 text-center py-6">Данные отсутствуют.</p>
+                        <p class="text-gray-500 text-center py-6">Дані відсутні.</p>
                     <?php else: ?>
                         <div>
                             <?php foreach ($topMovingItems as $index => $item): ?>
@@ -282,7 +282,7 @@ $chartData = [
                                             <?php echo ($index + 1) . '. ' . htmlspecialchars($item['name']); ?>
                                         </span>
                                         <span class="text-sm text-gray-500">
-                                            <?php echo $item['transaction_count']; ?> транзакций
+                                            <?php echo $item['transaction_count']; ?> транзакцій
                                         </span>
                                     </div>
                                     <div class="relative pt-1">
@@ -303,22 +303,22 @@ $chartData = [
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
-    <!-- JavaScript для инициализации графиков -->
+    <!-- JavaScript для ініціалізації графіків -->
     <script>
-        // График по категориям
+        // Графік за категоріями
         var ctx = document.getElementById('inventoryChart').getContext('2d');
         var inventoryChart = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: <?php echo json_encode(array_map(function($cat) {
                     $labels = [
-                        'raw_material' => 'Сырьё',
+                        'raw_material' => 'Сировина',
                         'packaging' => 'Упаковка',
-                        'finished_product' => 'Готовая продукция'
+                        'finished_product' => 'Готова продукція'
                     ];
                     return $labels[$cat] ?? $cat;
                 }, $chartData['labels'])); ?>,
