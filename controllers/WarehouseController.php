@@ -1,6 +1,6 @@
 <?php
 // controllers/WarehouseController.php
-// Контроллер для управления складом
+// Контролер для управління складом
 
 if (!defined('ROOT_PATH')) {
     require_once dirname(__DIR__) . '/config.php';
@@ -16,19 +16,19 @@ class WarehouseController {
         $this->db->getConnection();
     }
 
-    // Получение полного списка товаров на складе
+    // Отримання повного списку товарів на складі
     public function getInventorySummary() {
         $query = "SELECT * FROM products ORDER BY category, name";
         return $this->db->select($query);
     }
 
-    // Получение списка товаров с низким запасом
+    // Отримання списку товарів з низьким запасом
     public function getLowStockItems() {
         $query = "SELECT * FROM products WHERE quantity <= min_stock ORDER BY (min_stock - quantity) DESC";
         return $this->db->select($query);
     }
 
-    // Получение последних N транзакций
+    // Отримання останніх N транзакцій
     public function getRecentTransactions($limit = 10) {
         $query = "SELECT it.*, p.name as product_name, p.unit, u.name as user_name 
                  FROM inventory_transactions it
@@ -39,7 +39,7 @@ class WarehouseController {
         return $this->db->select($query, [$limit]);
     }
 
-    // Получение топ N активных товаров
+    // Отримання топ N активних товарів
     public function getTopMovingItems($limit = 5) {
         $query = "SELECT p.id, p.name, COUNT(it.id) as transaction_count
                  FROM products p
@@ -50,19 +50,19 @@ class WarehouseController {
         return $this->db->select($query, [$limit]);
     }
 
-    // Получение деталей конкретного товара
+    // Отримання деталей конкретного товару
     public function getProductDetails($productId) {
         $query = "SELECT * FROM products WHERE id = ?";
         return $this->db->selectOne($query, [$productId]);
     }
 
-// Следующие методы нужно добавить в controllers/WarehouseController.php
+// Наступні методи потрібно додати в controllers/WarehouseController.php
 
 /**
- * Получение отфильтрованных транзакций
+ * Отримання відфільтрованих транзакцій
  */
 public function getFilteredTransactions($type = '', $productId = '', $dateFrom = '', $dateTo = '', $userId = '', $referenceType = '') {
-    // Создаем базовый запрос
+    // Створюємо базовий запит
     $query = "SELECT it.*, p.name as product_name, p.unit, u.name as user_name 
               FROM inventory_transactions it
               JOIN products p ON it.product_id = p.id
@@ -71,7 +71,7 @@ public function getFilteredTransactions($type = '', $productId = '', $dateFrom =
     
     $params = [];
     
-    // Применяем фильтры
+    // Застосовуємо фільтри
     if (!empty($type)) {
         $query .= " AND it.transaction_type = ?";
         $params[] = $type;
@@ -108,7 +108,7 @@ public function getFilteredTransactions($type = '', $productId = '', $dateFrom =
 }
 
 /**
- * Получение списка всех пользователей для фильтрации
+ * Отримання списку всіх користувачів для фільтрації
  */
 public function getAllUsers() {
     $query = "SELECT id, name, role FROM users ORDER BY role, name";
@@ -116,10 +116,10 @@ public function getAllUsers() {
 }
 
 /**
- * Получение статистики по транзакциям
+ * Отримання статистики по транзакціях
  */
 public function getTransactionStatistics($dateFrom, $dateTo) {
-    // Основная статистика
+    // Основна статистика
     $query = "SELECT 
                 COUNT(*) as total_count,
                 SUM(CASE WHEN transaction_type = 'in' THEN 1 ELSE 0 END) as in_count,
@@ -132,7 +132,7 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
     
     $stats = $this->db->selectOne($query, [$dateFrom, $dateTo]);
     
-    // Данные для графика - активность по дням
+    // Дані для графіка - активність по днях
     $chartQuery = "
         SELECT 
             DATE(created_at) as date,
@@ -146,7 +146,7 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
     
     $chartData = $this->db->select($chartQuery, [$dateFrom, $dateTo]);
     
-    // Преобразуем данные для графика
+    // Перетворюємо дані для графіка
     $labels = [];
     $inData = [];
     $outData = [];
@@ -166,29 +166,29 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
     return $stats;
 }
 
-    // Добавление новой транзакции (приход/расход)
+    // Додавання нової транзакції (прихід/видаток)
     public function addTransaction($productId, $quantity, $transactionType, $referenceId, $referenceType, $notes, $userId) {
-        // Проверяем наличие товара
+        // Перевіряємо наявність товару
         $product = $this->getProductDetails($productId);
         if (!$product) {
             return [
                 'success' => false,
-                'message' => 'Товар не найден'
+                'message' => 'Товар не знайдено'
             ];
         }
 
-        // Для транзакции типа "расход" проверяем, достаточно ли товара на складе
+        // Для транзакції типу "видаток" перевіряємо, чи достатньо товару на складі
         if ($transactionType === 'out' && $product['quantity'] < $quantity) {
             return [
                 'success' => false,
-                'message' => 'Недостаточно товара на складе'
+                'message' => 'Недостатньо товару на складі'
             ];
         }
 
-        // Начинаем транзакцию
+        // Починаємо транзакцію
         $this->db->execute("START TRANSACTION");
 
-        // Добавляем запись в таблицу транзакций
+        // Додаємо запис в таблицю транзакцій
         $insertQuery = "INSERT INTO inventory_transactions 
                        (product_id, quantity, transaction_type, reference_id, reference_type, notes, created_by)
                        VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -207,11 +207,11 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
             $this->db->execute("ROLLBACK");
             return [
                 'success' => false,
-                'message' => 'Ошибка при добавлении транзакции'
+                'message' => 'Помилка при додаванні транзакції'
             ];
         }
 
-        // Обновляем количество товара на складе
+        // Оновлюємо кількість товару на складі
         $newQuantity = $transactionType === 'in' 
             ? $product['quantity'] + $quantity 
             : $product['quantity'] - $quantity;
@@ -223,23 +223,23 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
             $this->db->execute("ROLLBACK");
             return [
                 'success' => false,
-                'message' => 'Ошибка при обновлении количества товара'
+                'message' => 'Помилка при оновленні кількості товару'
             ];
         }
 
-        // Если всё прошло успешно, фиксируем транзакцию
+        // Якщо все пройшло успішно, фіксуємо транзакцію
         $this->db->execute("COMMIT");
 
         return [
             'success' => true,
             'message' => $transactionType === 'in' 
-                ? 'Товар успешно принят на склад'
-                : 'Товар успешно выдан со склада',
+                ? 'Товар успішно прийнято на склад'
+                : 'Товар успішно видано зі складу',
             'transaction_id' => $this->db->lastInsertId()
         ];
     }
 
-    // Получение истории транзакций для конкретного товара
+    // Отримання історії транзакцій для конкретного товару
     public function getProductTransactions($productId, $limit = 20) {
         $query = "SELECT it.*, u.name as user_name 
                  FROM inventory_transactions it
@@ -250,13 +250,13 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
         return $this->db->select($query, [$productId, $limit]);
     }
 
-    // Получение товаров по категории
+    // Отримання товарів за категорією
     public function getProductsByCategory($category) {
         $query = "SELECT * FROM products WHERE category = ? ORDER BY name";
         return $this->db->select($query, [$category]);
     }
 
-    // Добавление нового товара
+    // Додавання нового товару
     public function addProduct($name, $category, $quantity, $unit, $minStock, $description) {
         $query = "INSERT INTO products (name, category, quantity, unit, min_stock, description)
                  VALUES (?, ?, ?, ?, ?, ?)";
@@ -268,18 +268,18 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
         if ($result) {
             return [
                 'success' => true,
-                'message' => 'Товар успешно добавлен',
+                'message' => 'Товар успішно додано',
                 'product_id' => $this->db->lastInsertId()
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Ошибка при добавлении товара'
+                'message' => 'Помилка при додаванні товару'
             ];
         }
     }
 
-    // Обновление данных товара
+    // Оновлення даних товару
     public function updateProduct($id, $name, $category, $unit, $minStock, $description) {
         $query = "UPDATE products 
                  SET name = ?, category = ?, unit = ?, min_stock = ?, description = ?
@@ -292,30 +292,30 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
         if ($result) {
             return [
                 'success' => true,
-                'message' => 'Данные товара успешно обновлены'
+                'message' => 'Дані товару успішно оновлено'
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Ошибка при обновлении данных товара'
+                'message' => 'Помилка при оновленні даних товару'
             ];
         }
     }
 
-    // Обработка приема товаров от поставщиков (по заказу)
+    // Обробка прийому товарів від постачальників (за замовленням)
     public function receiveOrderItems($orderId, $userId) {
-        // Получаем информацию о заказе
+        // Отримуємо інформацію про замовлення
         $orderQuery = "SELECT * FROM orders WHERE id = ?";
         $order = $this->db->selectOne($orderQuery, [$orderId]);
 
         if (!$order || $order['status'] !== 'approved') {
             return [
                 'success' => false,
-                'message' => 'Заказ не найден или еще не одобрен'
+                'message' => 'Замовлення не знайдено або ще не схвалено'
             ];
         }
 
-        // Получаем элементы заказа
+        // Отримуємо елементи замовлення
         $itemsQuery = "SELECT oi.*, p.name as product_name, p.quantity as current_stock
                       FROM order_items oi
                       JOIN products p ON oi.product_id = p.id
@@ -325,18 +325,18 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
         if (empty($items)) {
             return [
                 'success' => false,
-                'message' => 'В заказе отсутствуют товары'
+                'message' => 'У замовленні відсутні товари'
             ];
         }
 
-        // Начинаем транзакцию
+        // Починаємо транзакцію
         $this->db->execute("START TRANSACTION");
 
         $success = true;
         $errors = [];
 
         foreach ($items as $item) {
-            // Добавляем транзакцию для товара
+            // Додаємо транзакцію для товару
             $transactionQuery = "INSERT INTO inventory_transactions 
                                (product_id, quantity, transaction_type, reference_id, reference_type, created_by)
                                VALUES (?, ?, 'in', ?, 'order', ?)";
@@ -350,11 +350,11 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
 
             if (!$transResult) {
                 $success = false;
-                $errors[] = "Ошибка при обработке товара: " . $item['product_name'];
+                $errors[] = "Помилка при обробці товару: " . $item['product_name'];
                 break;
             }
 
-            // Обновляем количество товара на складе
+            // Оновлюємо кількість товару на складі
             $newQuantity = $item['current_stock'] + $item['quantity'];
             $updateQuery = "UPDATE products SET quantity = ? WHERE id = ?";
             
@@ -365,13 +365,13 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
 
             if (!$updateResult) {
                 $success = false;
-                $errors[] = "Ошибка при обновлении количества товара: " . $item['product_name'];
+                $errors[] = "Помилка при оновленні кількості товару: " . $item['product_name'];
                 break;
             }
         }
 
         if ($success) {
-            // Обновляем статус заказа
+            // Оновлюємо статус замовлення
             $updateOrderQuery = "UPDATE orders SET status = 'received' WHERE id = ?";
             $updateOrderResult = $this->db->execute($updateOrderQuery, [$orderId]);
 
@@ -379,20 +379,20 @@ public function getTransactionStatistics($dateFrom, $dateTo) {
                 $this->db->execute("COMMIT");
                 return [
                     'success' => true,
-                    'message' => 'Товары успешно приняты на склад'
+                    'message' => 'Товари успішно прийнято на склад'
                 ];
             } else {
                 $this->db->execute("ROLLBACK");
                 return [
                     'success' => false,
-                    'message' => 'Ошибка при обновлении статуса заказа'
+                    'message' => 'Помилка при оновленні статусу замовлення'
                 ];
             }
         } else {
             $this->db->execute("ROLLBACK");
             return [
                 'success' => false,
-                'message' => 'Произошли ошибки при приеме товаров: ' . implode(', ', $errors)
+                'message' => 'Виникли помилки при прийомі товарів: ' . implode(', ', $errors)
             ];
         }
     }

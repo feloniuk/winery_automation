@@ -1,6 +1,6 @@
 <?php
 // controllers/SupplierController.php
-// Контроллер для управления функционалом поставщика
+// Контролер для управління функціоналом постачальника
 
 if (!defined('ROOT_PATH')) {
     require_once dirname(__DIR__) . '/config.php';
@@ -16,14 +16,14 @@ class SupplierController {
     }
     
 
-    // Получение ID поставщика по ID пользователя
+    // Отримання ID постачальника за ID користувача
     public function getSupplierIdByUserId($userId) {
         $query = "SELECT id FROM suppliers WHERE user_id = ?";
         $result = $this->db->selectOne($query, [$userId]);
         return $result ? $result['id'] : null;
     }
 
-    // Получение информации о поставщике
+    // Отримання інформації про постачальника
     public function getSupplierInfo($supplierId) {
         $query = "SELECT s.*, u.name, u.email 
                  FROM suppliers s
@@ -32,21 +32,21 @@ class SupplierController {
         return $this->db->selectOne($query, [$supplierId]);
     }
 
-    // Получение заказов по статусу
+    // Отримання замовлень за статусом
     public function getOrdersByStatus($supplierId, $status) {
         $query = "SELECT * FROM orders WHERE supplier_id = ? AND status = ? ORDER BY created_at DESC";
         return $this->db->select($query, [$supplierId, $status]);
     }
 
-    // Получение последних N заказов
+    // Отримання останніх N замовлень
     public function getRecentOrders($supplierId, $limit = 5) {
         $query = "SELECT * FROM orders WHERE supplier_id = ? ORDER BY created_at DESC LIMIT ?";
         return $this->db->select($query, [$supplierId, $limit]);
     }
 
-    // Получение конкретного заказа с его элементами
+    // Отримання конкретного замовлення з його елементами
     public function getOrderWithItems($orderId, $supplierId) {
-        // Проверяем, принадлежит ли заказ поставщику
+        // Перевіряємо, чи належить замовлення постачальнику
         $orderQuery = "SELECT o.*, u.name as created_by_name 
                       FROM orders o
                       JOIN users u ON o.created_by = u.id
@@ -57,7 +57,7 @@ class SupplierController {
             return null;
         }
         
-        // Получаем элементы заказа
+        // Отримуємо елементи замовлення
         $itemsQuery = "SELECT oi.*, p.name as product_name, p.category, p.unit 
                       FROM order_items oi
                       JOIN products p ON oi.product_id = p.id
@@ -70,25 +70,25 @@ class SupplierController {
         ];
     }
 
-    // Обновление профиля поставщика
+    // Оновлення профілю постачальника
     public function updateSupplierProfile($supplierId, $userData, $supplierData) {
-        // Получаем ID пользователя
+        // Отримуємо ID користувача
         $query = "SELECT user_id FROM suppliers WHERE id = ?";
         $result = $this->db->selectOne($query, [$supplierId]);
         
         if (!$result) {
             return [
                 'success' => false,
-                'message' => 'Поставщик не найден'
+                'message' => 'Постачальника не знайдено'
             ];
         }
         
         $userId = $result['user_id'];
         
-        // Начинаем транзакцию
+        // Починаємо транзакцію
         $this->db->execute("START TRANSACTION");
         
-        // Обновляем данные пользователя
+        // Оновлюємо дані користувача
         $userUpdateFields = [];
         $userUpdateParams = [];
         
@@ -116,12 +116,12 @@ class SupplierController {
                 $this->db->execute("ROLLBACK");
                 return [
                     'success' => false,
-                    'message' => 'Ошибка при обновлении данных пользователя'
+                    'message' => 'Помилка при оновленні даних користувача'
                 ];
             }
         }
         
-        // Обновляем данные поставщика
+        // Оновлюємо дані постачальника
         $supplierUpdateFields = [];
         $supplierUpdateParams = [];
         
@@ -154,7 +154,7 @@ class SupplierController {
                 $this->db->execute("ROLLBACK");
                 return [
                     'success' => false,
-                    'message' => 'Ошибка при обновлении данных поставщика'
+                    'message' => 'Помилка при оновленні даних постачальника'
                 ];
             }
         }
@@ -163,11 +163,11 @@ class SupplierController {
         
         return [
             'success' => true,
-            'message' => 'Профиль успешно обновлен'
+            'message' => 'Профіль успішно оновлено'
         ];
     }
 
-    // Получение непрочитанных сообщений
+    // Отримання непрочитаних повідомлень
     public function getUnreadMessages($userId) {
         $query = "SELECT m.*, u.name as sender_name 
                  FROM messages m
@@ -178,7 +178,7 @@ class SupplierController {
         return $this->db->select($query, [$userId]);
     }
 
-    // Получение всех сообщений пользователя
+    // Отримання всіх повідомлень користувача
     public function getAllMessages($userId) {
         $receivedQuery = "SELECT m.*, u.name as sender_name, 'received' as type 
                          FROM messages m
@@ -193,7 +193,7 @@ class SupplierController {
         $receivedMessages = $this->db->select($receivedQuery, [$userId]);
         $sentMessages = $this->db->select($sentQuery, [$userId]);
         
-        // Объединяем и сортируем сообщения по дате
+        // Об'єднуємо та сортуємо повідомлення за датою
         $allMessages = array_merge($receivedMessages, $sentMessages);
         usort($allMessages, function($a, $b) {
             return strtotime($b['created_at']) - strtotime($a['created_at']);
@@ -202,7 +202,7 @@ class SupplierController {
         return $allMessages;
     }
 
-    // Получение конкретного сообщения
+    // Отримання конкретного повідомлення
     public function getMessage($messageId, $userId) {
         $query = "SELECT m.*, 
                  sender.name as sender_name, sender.email as sender_email,
@@ -215,7 +215,7 @@ class SupplierController {
         $message = $this->db->selectOne($query, [$messageId, $userId, $userId]);
         
         if ($message && $message['receiver_id'] == $userId && !$message['is_read']) {
-            // Отмечаем сообщение как прочитанное
+            // Відмічаємо повідомлення як прочитане
             $updateQuery = "UPDATE messages SET is_read = 1 WHERE id = ?";
             $this->db->execute($updateQuery, [$messageId]);
         }
@@ -223,7 +223,7 @@ class SupplierController {
         return $message;
     }
 
-    // Отправка сообщения
+    // Відправлення повідомлення
     public function sendMessage($senderId, $receiverId, $subject, $content) {
         $query = "INSERT INTO messages (sender_id, receiver_id, subject, message) VALUES (?, ?, ?, ?)";
         $result = $this->db->execute($query, [$senderId, $receiverId, $subject, $content]);
@@ -231,18 +231,18 @@ class SupplierController {
         if ($result) {
             return [
                 'success' => true,
-                'message' => 'Сообщение успешно отправлено',
+                'message' => 'Повідомлення успішно відправлено',
                 'message_id' => $this->db->lastInsertId()
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Ошибка при отправке сообщения'
+                'message' => 'Помилка при відправленні повідомлення'
             ];
         }
     }
 
-    // Получение статистики продаж по месяцам
+    // Отримання статистики продажів по місяцях
     public function getSupplierSalesStats($supplierId) {
         $query = "SELECT 
                     DATE_FORMAT(created_at, '%Y-%m') as month_key,
@@ -257,14 +257,14 @@ class SupplierController {
         
         $stats = $this->db->select($query, [$supplierId]);
         
-        // Переворачиваем массив для отображения данных в хронологическом порядке
+        // Перевертаємо масив для відображення даних у хронологічному порядку
         return array_reverse($stats);
     }
 
-    // Получение списка товаров поставщика
+    // Отримання списку товарів постачальника
     public function getSupplierProducts($supplierId) {
-        // В этой реализации мы предполагаем, что у поставщика нет прямой привязки к товарам
-        // Вместо этого мы получаем товары, которые были в заказах этого поставщика
+        // У цій реалізації ми припускаємо, що у постачальника немає прямої прив'язки до товарів
+        // Замість цього ми отримуємо товари, які були в замовленнях цього постачальника
         $query = "SELECT DISTINCT p.*, 
                  (SELECT SUM(oi.quantity) FROM order_items oi 
                   JOIN orders o ON oi.order_id = o.id 
@@ -278,7 +278,7 @@ class SupplierController {
         return $this->db->select($query, [$supplierId, $supplierId]);
     }
 
-    // Получение даты последней поставки товара
+    // Отримання дати останньої поставки товару
     public function getProductLastDelivery($supplierId, $productId) {
         $query = "SELECT MAX(it.created_at) as last_delivery 
                   FROM inventory_transactions it
@@ -290,67 +290,67 @@ class SupplierController {
         return $result && isset($result['last_delivery']) ? $result['last_delivery'] : null;
     }
 
-    // Принятие заказа поставщиком
+    // Прийняття замовлення постачальником
     public function acceptOrder($orderId, $supplierId) {
-        // Проверяем, принадлежит ли заказ поставщику и находится ли он в состоянии 'pending'
+        // Перевіряємо, чи належить замовлення постачальнику і чи знаходиться воно в стані 'pending'
         $query = "SELECT * FROM orders WHERE id = ? AND supplier_id = ? AND status = 'pending'";
         $order = $this->db->selectOne($query, [$orderId, $supplierId]);
         
         if (!$order) {
             return [
                 'success' => false,
-                'message' => 'Заказ не найден или не может быть подтвержден'
+                'message' => 'Замовлення не знайдено або не може бути підтверджено'
             ];
         }
         
-        // Обновляем статус заказа
+        // Оновлюємо статус замовлення
         $updateQuery = "UPDATE orders SET status = 'approved', updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         $result = $this->db->execute($updateQuery, [$orderId]);
         
         if ($result) {
             return [
                 'success' => true,
-                'message' => 'Заказ успешно подтвержден'
+                'message' => 'Замовлення успішно підтверджено'
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Ошибка при подтверждении заказа'
+                'message' => 'Помилка при підтвердженні замовлення'
             ];
         }
     }
 
-    // Отклонение заказа поставщиком
+    // Відхилення замовлення постачальником
     public function rejectOrder($orderId, $supplierId, $reason) {
-        // Проверяем, принадлежит ли заказ поставщику и находится ли он в состоянии 'pending'
+        // Перевіряємо, чи належить замовлення постачальнику і чи знаходиться воно в стані 'pending'
         $query = "SELECT * FROM orders WHERE id = ? AND supplier_id = ? AND status = 'pending'";
         $order = $this->db->selectOne($query, [$orderId, $supplierId]);
         
         if (!$order) {
             return [
                 'success' => false,
-                'message' => 'Заказ не найден или не может быть отклонен'
+                'message' => 'Замовлення не знайдено або не може бути відхилено'
             ];
         }
         
-        // Обновляем статус заказа и добавляем причину отклонения
+        // Оновлюємо статус замовлення та додаємо причину відхилення
         $updateQuery = "UPDATE orders SET status = 'rejected', notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         $result = $this->db->execute($updateQuery, [$reason, $orderId]);
         
         if ($result) {
             return [
                 'success' => true,
-                'message' => 'Заказ отклонен'
+                'message' => 'Замовлення відхилено'
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Ошибка при отклонении заказа'
+                'message' => 'Помилка при відхиленні замовлення'
             ];
         }
     }
 
-    // Получение статистики по заказам
+    // Отримання статистики по замовленнях
     public function getOrderStats($supplierId) {
         $query = "SELECT 
                     COUNT(*) as total_orders,

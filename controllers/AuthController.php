@@ -1,6 +1,6 @@
 <?php
 // controllers/AuthController.php
-// Контроллер для авторизации и регистрации пользователей
+// Контролер для авторизації та реєстрації користувачів
 
 if (!defined('ROOT_PATH')) {
     require_once dirname(__DIR__) . '/config.php';
@@ -16,73 +16,73 @@ class AuthController {
         session_start();
     }
 
-    // Метод для авторизации пользователя
+    // Метод для авторизації користувача
     public function login($username, $password) {
-        // Валидация входных данных
+        // Валідація вхідних даних
         if (empty($username) || empty($password)) {
             return [
                 'success' => false,
-                'message' => 'Пожалуйста, введите логин и пароль'
+                'message' => 'Будь ласка, введіть логін та пароль'
             ];
         }
 
-        // SQL запрос для проверки пользователя
+        // SQL запит для перевірки користувача
         $query = "SELECT * FROM users WHERE username = ?";
         $user = $this->db->selectOne($query, [$username]);
 
-        // Проверяем существование пользователя и правильность пароля
+        // Перевіряємо існування користувача та правильність пароля
         if ($user && password_verify($password, $user['password'])) {
-            // Записываем данные пользователя в сессию
+            // Записуємо дані користувача в сесію
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
 
-            // Перенаправляем на соответствующую страницу в зависимости от роли
+            // Перенаправляємо на відповідну сторінку залежно від ролі
             return [
                 'success' => true,
                 'role' => $user['role'],
-                'message' => 'Вы успешно вошли в систему'
+                'message' => 'Ви успішно увійшли в систему'
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Неверный логин или пароль'
+                'message' => 'Невірний логін або пароль'
             ];
         }
     }
 
-    // Метод для регистрации нового поставщика
+    // Метод для реєстрації нового постачальника
     public function registerSupplier($userData, $supplierData) {
-        // Валидация входных данных
+        // Валідація вхідних даних
         if (empty($userData['username']) || empty($userData['password']) || 
             empty($userData['name']) || empty($userData['email']) ||
             empty($supplierData['company_name']) || empty($supplierData['contact_person']) ||
             empty($supplierData['phone']) || empty($supplierData['address'])) {
             return [
                 'success' => false,
-                'message' => 'Пожалуйста, заполните все обязательные поля'
+                'message' => 'Будь ласка, заповніть усі обов\'язкові поля'
             ];
         }
 
-        // Проверяем, существует ли уже пользователь с таким username или email
+        // Перевіряємо, чи існує вже користувач з таким username або email
         $query = "SELECT * FROM users WHERE username = ? OR email = ?";
         $existingUser = $this->db->selectOne($query, [$userData['username'], $userData['email']]);
 
         if ($existingUser) {
             return [
                 'success' => false,
-                'message' => 'Пользователь с таким логином или email уже существует'
+                'message' => 'Користувач з таким логіном або email вже існує'
             ];
         }
 
-        // Хешируем пароль
+        // Хешуємо пароль
         $hashedPassword = password_hash($userData['password'], PASSWORD_DEFAULT);
 
-        // Начинаем транзакцию
+        // Починаємо транзакцію
         $this->db->execute("START TRANSACTION");
 
-        // Вставляем запись в таблицу users
+        // Вставляємо запис в таблицю users
         $insertUserQuery = "INSERT INTO users (username, password, role, name, email) VALUES (?, ?, 'supplier', ?, ?)";
         $userInserted = $this->db->execute($insertUserQuery, [
             $userData['username'],
@@ -91,7 +91,7 @@ class AuthController {
             $userData['email']
         ]);
 
-        // Если пользователь создан успешно, создаем запись поставщика
+        // Якщо користувач створений успішно, створюємо запис постачальника
         if ($userInserted) {
             $userId = $this->db->lastInsertId();
 
@@ -108,42 +108,42 @@ class AuthController {
                 $this->db->execute("COMMIT");
                 return [
                     'success' => true,
-                    'message' => 'Регистрация успешно завершена. Теперь вы можете войти в систему.'
+                    'message' => 'Реєстрація успішно завершена. Тепер ви можете увійти в систему.'
                 ];
             } else {
                 $this->db->execute("ROLLBACK");
                 return [
                     'success' => false,
-                    'message' => 'Ошибка при создании поставщика'
+                    'message' => 'Помилка при створенні постачальника'
                 ];
             }
         } else {
             $this->db->execute("ROLLBACK");
             return [
                 'success' => false,
-                'message' => 'Ошибка при создании пользователя'
+                'message' => 'Помилка при створенні користувача'
             ];
         }
     }
 
-    // Метод для выхода из системы
+    // Метод для виходу з системи
     public function logout() {
-        // Уничтожаем все данные сессии
+        // Знищуємо всі дані сесії
         session_unset();
         session_destroy();
         
         return [
             'success' => true,
-            'message' => 'Вы успешно вышли из системы'
+            'message' => 'Ви успішно вийшли з системи'
         ];
     }
 
-    // Проверка авторизации
+    // Перевірка авторизації
     public function isLoggedIn() {
         return isset($_SESSION['user_id']);
     }
 
-    // Проверка роли пользователя
+    // Перевірка ролі користувача
     public function checkRole($role) {
         if (!$this->isLoggedIn()) {
             return false;
@@ -156,7 +156,7 @@ class AuthController {
         }
     }
 
-    // Метод для получения информации о текущем пользователе
+    // Метод для отримання інформації про поточного користувача
     public function getCurrentUser() {
         if (!$this->isLoggedIn()) {
             return null;

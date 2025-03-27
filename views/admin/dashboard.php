@@ -1,68 +1,68 @@
 <?php
 // views/admin/dashboard.php
-// Панель управления для администратора
+// Панель керування для адміністратора
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/AdminController.php';
 
 $authController = new AuthController();
 $adminController = new AdminController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('admin')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для дашборда
+// Отримання даних для дашборду
 $currentUser = $authController->getCurrentUser();
 $userStats = $adminController->getUserStatistics();
 $inventoryStats = $adminController->getInventoryStatistics();
 $recentTransactions = $adminController->getRecentTransactions(5);
 $cameraList = $adminController->getCameras();
 
-// Получение 5 самых активных пользователей системы
+// Отримання 5 найактивніших користувачів системи
 $activeUsers = $adminController->getMostActiveUsers(5);
 
-// Получение списка оповещений системы
+// Отримання списку сповіщень системи
 $systemAlerts = $adminController->getSystemAlerts();
 
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель администратора - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Панель адміністратора - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js для графиков -->
+    <!-- Chart.js для графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-indigo-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Администратор)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Адміністратор)</span>
                 <a href="../../controllers/logout.php" class="bg-indigo-700 hover:bg-indigo-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель і основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -71,7 +71,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500">Администратор системы</p>
+                        <p class="text-sm text-gray-500">Адміністратор системи</p>
                     </div>
                 </div>
                 
@@ -79,19 +79,19 @@ $systemAlerts = $adminController->getSystemAlerts();
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 bg-indigo-100 text-indigo-700 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="users.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-users w-5 mr-2"></i>
-                            <span>Пользователи</span>
+                            <span>Користувачі</span>
                         </a>
                     </li>
                     <li>
                         <a href="cameras.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-video w-5 mr-2"></i>
-                            <span>Камеры наблюдения</span>
+                            <span>Камери спостереження</span>
                         </a>
                     </li>
                     <li>
@@ -103,28 +103,28 @@ $systemAlerts = $adminController->getSystemAlerts();
                     <li>
                         <a href="purchasing.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Закупки</span>
+                            <span>Закупівлі</span>
                         </a>
                     </li>
                     <li>
                         <a href="reports.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-chart-bar w-5 mr-2"></i>
-                            <span>Отчеты</span>
+                            <span>Звіти</span>
                         </a>
                     </li>
                     <li>
                         <a href="settings.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-cog w-5 mr-2"></i>
-                            <span>Настройки</span>
+                            <span>Налаштування</span>
                         </a>
                     </li>
                 </ul>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
-            <!-- Карточки с краткой статистикой -->
+            <!-- Картки з короткою статистикою -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center">
@@ -132,7 +132,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                             <i class="fas fa-users text-indigo-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Пользователей</p>
+                            <p class="text-sm text-gray-500">Користувачів</p>
                             <p class="text-2xl font-bold"><?php echo $userStats['total_users']; ?></p>
                         </div>
                     </div>
@@ -143,7 +143,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                             <i class="fas fa-boxes text-green-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Товаров на складе</p>
+                            <p class="text-sm text-gray-500">Товарів на складі</p>
                             <p class="text-2xl font-bold"><?php echo $inventoryStats['total_products']; ?></p>
                         </div>
                     </div>
@@ -154,7 +154,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                             <i class="fas fa-exclamation-triangle text-red-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Оповещения</p>
+                            <p class="text-sm text-gray-500">Сповіщення</p>
                             <p class="text-2xl font-bold"><?php echo count($systemAlerts); ?></p>
                         </div>
                     </div>
@@ -165,17 +165,17 @@ $systemAlerts = $adminController->getSystemAlerts();
                             <i class="fas fa-video text-blue-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Активные камеры</p>
+                            <p class="text-sm text-gray-500">Активні камери</p>
                             <p class="text-2xl font-bold"><?php echo count(array_filter($cameraList, function($c) { return $c['status'] === 'active'; })); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Система оповещений -->
+            <!-- Система сповіщень -->
             <?php if (!empty($systemAlerts)): ?>
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-lg font-semibold mb-4">Системные оповещения</h2>
+                <h2 class="text-lg font-semibold mb-4">Системні сповіщення</h2>
                 <div class="space-y-3">
                     <?php foreach ($systemAlerts as $alert): ?>
                         <div class="flex items-start p-3 bg-red-50 rounded-lg border border-red-200">
@@ -188,7 +188,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                                 <div class="flex justify-between items-center mt-2">
                                     <span class="text-xs text-red-600"><?php echo date('d.m.Y H:i', strtotime($alert['created_at'])); ?></span>
                                     <button class="text-xs text-indigo-600 hover:text-indigo-800" onclick="dismissAlert(<?php echo $alert['id']; ?>)">
-                                        Отметить как решенное
+                                        Позначити як вирішене
                                     </button>
                                 </div>
                             </div>
@@ -198,18 +198,18 @@ $systemAlerts = $adminController->getSystemAlerts();
             </div>
             <?php endif; ?>
             
-            <!-- Основные блоки с данными -->
+            <!-- Основні блоки з даними -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Камеры наблюдения (превью) -->
+                <!-- Камери спостереження (превью) -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Камеры наблюдения</h2>
+                    <h2 class="text-lg font-semibold mb-4">Камери спостереження</h2>
                     <?php if (empty($cameraList)): ?>
-                        <p class="text-gray-500 text-center py-6">Камеры не настроены.</p>
+                        <p class="text-gray-500 text-center py-6">Камери не налаштовані.</p>
                     <?php else: ?>
                         <div class="grid grid-cols-2 gap-4">
                             <?php foreach (array_slice($cameraList, 0, 4) as $camera): ?>
                                 <div class="relative rounded-lg overflow-hidden bg-gray-200">
-                                    <!-- Здесь в реальной системе был бы iframe или изображение с камеры -->
+                                    <!-- Тут у реальній системі був би iframe або зображення з камери -->
                                     <div class="aspect-w-16 aspect-h-9">
                                         <div class="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400">
                                             <i class="fas fa-video fa-2x"></i>
@@ -228,25 +228,25 @@ $systemAlerts = $adminController->getSystemAlerts();
                         </div>
                         <div class="mt-4 text-center">
                             <a href="cameras.php" class="inline-block px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
-                                Просмотр всех камер
+                                Переглянути всі камери
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Распределение пользователей по ролям -->
+                <!-- Розподіл користувачів за ролями -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Распределение пользователей по ролям</h2>
+                    <h2 class="text-lg font-semibold mb-4">Розподіл користувачів за ролями</h2>
                     <div class="h-64">
                         <canvas id="userRolesChart"></canvas>
                     </div>
                 </div>
                 
-                <!-- Активность пользователей -->
+                <!-- Активність користувачів -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Самые активные пользователи</h2>
+                    <h2 class="text-lg font-semibold mb-4">Найактивніші користувачі</h2>
                     <?php if (empty($activeUsers)): ?>
-                        <p class="text-gray-500 text-center py-6">Данные об активности отсутствуют.</p>
+                        <p class="text-gray-500 text-center py-6">Дані про активність відсутні.</p>
                     <?php else: ?>
                         <div>
                             <?php foreach ($activeUsers as $index => $user): ?>
@@ -257,7 +257,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                                             <span class="text-xs text-gray-500">(<?php echo $user['role_name']; ?>)</span>
                                         </span>
                                         <span class="text-sm text-gray-500">
-                                            <?php echo $user['action_count']; ?> действий
+                                            <?php echo $user['action_count']; ?> дій
                                         </span>
                                     </div>
                                     <div class="relative pt-1">
@@ -273,11 +273,11 @@ $systemAlerts = $adminController->getSystemAlerts();
                     <?php endif; ?>
                 </div>
                 
-                <!-- Недавние транзакции -->
+                <!-- Недавні транзакції -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Недавние транзакции по складу</h2>
+                    <h2 class="text-lg font-semibold mb-4">Недавні транзакції по складу</h2>
                     <?php if (empty($recentTransactions)): ?>
-                        <p class="text-gray-500 text-center py-6">Транзакции отсутствуют.</p>
+                        <p class="text-gray-500 text-center py-6">Транзакції відсутні.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -286,7 +286,7 @@ $systemAlerts = $adminController->getSystemAlerts();
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пользователь</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Користувач</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -301,11 +301,11 @@ $systemAlerts = $adminController->getSystemAlerts();
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <?php if ($transaction['transaction_type'] == 'in'): ?>
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Приход (<?php echo $transaction['quantity']; ?> <?php echo $transaction['unit']; ?>)
+                                                        Надходження (<?php echo $transaction['quantity']; ?> <?php echo $transaction['unit']; ?>)
                                                     </span>
                                                 <?php else: ?>
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        Расход (<?php echo $transaction['quantity']; ?> <?php echo $transaction['unit']; ?>)
+                                                        Витрата (<?php echo $transaction['quantity']; ?> <?php echo $transaction['unit']; ?>)
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
@@ -319,40 +319,40 @@ $systemAlerts = $adminController->getSystemAlerts();
                         </div>
                         <div class="mt-4 text-right">
                             <a href="warehouse.php" class="text-sm text-indigo-600 hover:text-indigo-800">
-                                Все транзакции <i class="fas fa-arrow-right ml-1"></i>
+                                Всі транзакції <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
             
-            <!-- Быстрые действия -->
+            <!-- Швидкі дії -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-lg font-semibold mb-4">Быстрые действия</h2>
+                <h2 class="text-lg font-semibold mb-4">Швидкі дії</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <a href="users.php?action=create" class="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100">
                         <div class="bg-indigo-100 p-3 rounded-full mb-3">
                             <i class="fas fa-user-plus text-indigo-600 text-xl"></i>
                         </div>
-                        <span class="text-sm font-medium text-indigo-800">Добавить пользователя</span>
+                        <span class="text-sm font-medium text-indigo-800">Додати користувача</span>
                     </a>
                     <a href="cameras.php?action=create" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100">
                         <div class="bg-blue-100 p-3 rounded-full mb-3">
                             <i class="fas fa-video-plus text-blue-600 text-xl"></i>
                         </div>
-                        <span class="text-sm font-medium text-blue-800">Добавить камеру</span>
+                        <span class="text-sm font-medium text-blue-800">Додати камеру</span>
                     </a>
                     <a href="reports.php" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100">
                         <div class="bg-green-100 p-3 rounded-full mb-3">
                             <i class="fas fa-chart-line text-green-600 text-xl"></i>
                         </div>
-                        <span class="text-sm font-medium text-green-800">Создать отчет</span>
+                        <span class="text-sm font-medium text-green-800">Створити звіт</span>
                     </a>
                     <a href="backup.php" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100">
                         <div class="bg-purple-100 p-3 rounded-full mb-3">
                             <i class="fas fa-database text-purple-600 text-xl"></i>
                         </div>
-                        <span class="text-sm font-medium text-purple-800">Резервное копирование</span>
+                        <span class="text-sm font-medium text-purple-800">Резервне копіювання</span>
                     </a>
                 </div>
             </div>
@@ -361,19 +361,19 @@ $systemAlerts = $adminController->getSystemAlerts();
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
-        // График распределения пользователей по ролям
+        // Графік розподілу користувачів за ролями
         var roleCtx = document.getElementById('userRolesChart').getContext('2d');
         var roleLabels = [
-            'Администраторы', 
-            'Начальники склада', 
-            'Менеджеры по закупкам',
-            'Поставщики'
+            'Адміністратори', 
+            'Начальники складу', 
+            'Менеджери із закупівель',
+            'Постачальники'
         ];
         var roleData = [
             <?php echo $userStats['admin_count']; ?>,
@@ -411,7 +411,7 @@ $systemAlerts = $adminController->getSystemAlerts();
         
         // Функция для отклонения оповещения
         function dismissAlert(alertId) {
-            if (confirm('Вы уверены, что хотите отметить это оповещение как решенное?')) {
+            if (confirm('Ви впевненні?')) {
                 fetch('dismiss_alert.php', {
                     method: 'POST',
                     headers: {
@@ -425,12 +425,12 @@ $systemAlerts = $adminController->getSystemAlerts();
                         // Перезагрузить страницу или удалить элемент из DOM
                         location.reload();
                     } else {
-                        alert('Произошла ошибка: ' + data.message);
+                        alert('Помилка: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Произошла ошибка при обновлении оповещения');
+                    alert('Помилка при оновленні');
                 });
             }
         }
