@@ -1,8 +1,8 @@
 <?php
 // views/admin/warehouse.php
-// Страница для просмотра и управления складом для администратора
+// Сторінка для перегляду та управління складом для адміністратора
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/WarehouseController.php';
 require_once '../../controllers/AdminController.php';
@@ -11,20 +11,20 @@ $authController = new AuthController();
 $warehouseController = new WarehouseController();
 $adminController = new AdminController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('admin')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для страницы
+// Отримання даних для сторінки
 $currentUser = $authController->getCurrentUser();
 $inventorySummary = $warehouseController->getInventorySummary();
 $lowStockItems = $warehouseController->getLowStockItems();
 $recentTransactions = $warehouseController->getRecentTransactions(10);
 $topMovingItems = $warehouseController->getTopMovingItems(5);
 
-// Фильтрация по категории
+// Фільтрація за категорією
 $categoryFilter = isset($_GET['category']) ? $_GET['category'] : '';
 if ($categoryFilter) {
     $inventorySummary = array_filter($inventorySummary, function($item) use ($categoryFilter) {
@@ -32,7 +32,7 @@ if ($categoryFilter) {
     });
 }
 
-// Поиск по имени
+// Пошук за ім'ям
 $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 if ($searchTerm) {
     $inventorySummary = array_filter($inventorySummary, function($item) use ($searchTerm) {
@@ -40,14 +40,14 @@ if ($searchTerm) {
     });
 }
 
-// Категории для отображения
+// Категорії для відображення
 $categories = [
-    'raw_material' => 'Сырьё',
+    'raw_material' => 'Сировина',
     'packaging' => 'Упаковка',
-    'finished_product' => 'Готовая продукция'
+    'finished_product' => 'Готова продукція'
 ];
 
-// Формирование данных для графиков
+// Формування даних для графіків
 $categoryCounts = [];
 foreach ($inventorySummary as $item) {
     $category = $item['category'];
@@ -57,18 +57,18 @@ foreach ($inventorySummary as $item) {
     $categoryCounts[$category] += $item['quantity'];
 }
 
-// Обработка формы для изменения товара
+// Обробка форми для зміни товару
 $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Обновление минимального запаса товара
+    // Оновлення мінімального запасу товару
     if (isset($_POST['update_min_stock'])) {
         $productId = $_POST['product_id'] ?? '';
         $minStock = (int)($_POST['min_stock'] ?? 0);
         
         if (empty($productId)) {
-            $error = "Не указан идентификатор товара";
+            $error = "Не вказано ідентифікатор товару";
         } else {
             $product = $warehouseController->getProductDetails($productId);
             if ($product) {
@@ -82,15 +82,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 
                 if ($result['success']) {
-                    $message = "Минимальный запас товара успешно обновлен";
-                    // Обновляем список товаров
+                    $message = "Мінімальний запас товару успішно оновлено";
+                    // Оновлюємо список товарів
                     $inventorySummary = $warehouseController->getInventorySummary();
                     $lowStockItems = $warehouseController->getLowStockItems();
                 } else {
                     $error = $result['message'];
                 }
             } else {
-                $error = "Товар не найден";
+                $error = "Товар не знайдено";
             }
         }
     }
@@ -98,38 +98,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление складом - Админ-панель</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Управління складом - Панель адміністратора</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js для графиков -->
+    <!-- Chart.js для графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-indigo-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Администратор)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Адміністратор)</span>
                 <a href="../../controllers/logout.php" class="bg-indigo-700 hover:bg-indigo-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель та основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500">Администратор системы</p>
+                        <p class="text-sm text-gray-500">Адміністратор системи</p>
                     </div>
                 </div>
                 
@@ -146,19 +146,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="users.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-users w-5 mr-2"></i>
-                            <span>Пользователи</span>
+                            <span>Користувачі</span>
                         </a>
                     </li>
                     <li>
                         <a href="cameras.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-video w-5 mr-2"></i>
-                            <span>Камеры наблюдения</span>
+                            <span>Камери спостереження</span>
                         </a>
                     </li>
                     <li>
@@ -170,30 +170,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li>
                         <a href="purchasing.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Закупки</span>
+                            <span>Закупівлі</span>
                         </a>
                     </li>
                     <li>
                         <a href="reports.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-chart-bar w-5 mr-2"></i>
-                            <span>Отчеты</span>
+                            <span>Звіти</span>
                         </a>
                     </li>
                     <li>
                         <a href="settings.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-cog w-5 mr-2"></i>
-                            <span>Настройки</span>
+                            <span>Налаштування</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Блок с товарами с низким запасом -->
+            <!-- Блок з товарами з низьким запасом -->
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 class="font-semibold text-lg mb-3">Товары с низким запасом</h3>
+                <h3 class="font-semibold text-lg mb-3">Товари з низьким запасом</h3>
                 
                 <?php if (empty($lowStockItems)): ?>
-                <p class="text-green-600 text-center py-2">Все товары имеют достаточный запас</p>
+                <p class="text-green-600 text-center py-2">Всі товари мають достатній запас</p>
                 <?php else: ?>
                 <ul class="space-y-2">
                     <?php foreach (array_slice($lowStockItems, 0, 8) as $item): ?>
@@ -210,36 +210,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if (count($lowStockItems) > 8): ?>
                 <div class="mt-2 text-center">
                     <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm">
-                        Показать все (<?php echo count($lowStockItems); ?>)
+                        Показати всі (<?php echo count($lowStockItems); ?>)
                     </a>
                 </div>
                 <?php endif; ?>
                 <?php endif; ?>
             </div>
             
-            <!-- Статистика по категориям -->
+            <!-- Статистика за категоріями -->
             <div class="bg-white rounded-lg shadow-md p-4">
-                <h3 class="font-semibold text-lg mb-3">Запасы по категориям</h3>
+                <h3 class="font-semibold text-lg mb-3">Запаси за категоріями</h3>
                 <canvas id="categoriesChart" class="mb-2"></canvas>
                 
                 <?php foreach ($categories as $code => $name): ?>
                 <?php $amount = $categoryCounts[$code] ?? 0; ?>
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-gray-600"><?php echo $name; ?></span>
-                    <span class="font-semibold"><?php echo $amount; ?> ед.</span>
+                    <span class="font-semibold"><?php echo $amount; ?> од.</span>
                 </div>
                 <?php endforeach; ?>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
-            <!-- Заголовок и фильтры -->
+            <!-- Заголовок та фільтри -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Управление складом</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Управління складом</h2>
                     <a href="../warehouse/inventory.php" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                        <i class="fas fa-edit mr-1"></i> Редактировать инвентарь
+                        <i class="fas fa-edit mr-1"></i> Редагувати інвентар
                     </a>
                 </div>
                 
@@ -255,25 +255,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
                 
-                <!-- Фильтры и поиск -->
+                <!-- Фільтри та пошук -->
                 <div class="mb-6 flex flex-wrap items-center justify-between space-y-3 md:space-y-0">
                     <div class="flex space-x-2">
                         <a href="warehouse.php" class="<?php echo empty($categoryFilter) ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Все категории
+                            Всі категорії
                         </a>
                         <a href="?category=raw_material" class="<?php echo $categoryFilter === 'raw_material' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Сырьё
+                            Сировина
                         </a>
                         <a href="?category=packaging" class="<?php echo $categoryFilter === 'packaging' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
                             Упаковка
                         </a>
                         <a href="?category=finished_product" class="<?php echo $categoryFilter === 'finished_product' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'; ?> px-3 py-1 rounded-full text-xs">
-                            Готовая продукция
+                            Готова продукція
                         </a>
                     </div>
                     <form method="GET" action="" class="flex max-w-xs">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" 
-                               placeholder="Поиск товаров..." 
+                               placeholder="Пошук товарів..." 
                                class="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                         <button type="submit" class="inline-flex items-center px-4 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                             <i class="fas fa-search"></i>
@@ -281,33 +281,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </form>
                 </div>
                 
-                <!-- Информация о количестве товаров -->
+                <!-- Інформація про кількість товарів -->
                 <div class="text-sm text-gray-500 mb-4">
-                    Найдено: <?php echo count($inventorySummary); ?> товаров
+                    Знайдено: <?php echo count($inventorySummary); ?> товарів
                 </div>
                 
-                <!-- Таблица товаров -->
+                <!-- Таблиця товарів -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Название
+                                    Назва
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Категория
+                                    Категорія
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Мин. запас
+                                    Мін. запас
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Статус
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Действия
+                                    Дії
                                 </th>
                             </tr>
                         </thead>
@@ -317,9 +317,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                                     <?php 
                                     if ($categoryFilter || $searchTerm) {
-                                        echo 'Товары не найдены. Попробуйте изменить фильтры.';
+                                        echo 'Товари не знайдені. Спробуйте змінити фільтри.';
                                     } else {
-                                        echo 'Товары отсутствуют. Добавьте первый товар.';
+                                        echo 'Товари відсутні. Додайте перший товар.';
                                     }
                                     ?>
                                 </td>
@@ -342,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <i class="fas fa-pencil-alt"></i>
                                         </button>
                                         
-                                        <!-- Скрытая форма для редактирования -->
+                                        <!-- Прихована форма для редагування -->
                                         <form id="min_stock_form_<?php echo $item['id']; ?>" method="POST" action="" class="hidden mt-1">
                                             <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
                                             <div class="flex items-center">
@@ -360,17 +360,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if ($item['quantity'] <= $item['min_stock']): ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Низкий запас
+                                            Низький запас
                                         </span>
                                         <?php else: ?>
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            В наличии
+                                            В наявності
                                         </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="../warehouse/inventory.php?action=view&id=<?php echo $item['id']; ?>" class="text-indigo-600 hover:text-indigo-900">
-                                            Детали
+                                            Деталі
                                         </a>
                                     </td>
                                 </tr>
@@ -381,18 +381,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
             
-            <!-- Список последних транзакций -->
+            <!-- Список останніх транзакцій -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">Последние транзакции</h2>
+                    <h2 class="text-xl font-semibold text-gray-800">Останні транзакції</h2>
                     <a href="../warehouse/transactions.php" class="text-indigo-600 hover:text-indigo-800 text-sm">
-                        Все транзакции <i class="fas fa-arrow-right ml-1"></i>
+                        Всі транзакції <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
                 
                 <?php if (empty($recentTransactions)): ?>
                 <div class="text-center py-6">
-                    <p class="text-gray-500">Транзакции отсутствуют</p>
+                    <p class="text-gray-500">Транзакції відсутні</p>
                 </div>
                 <?php else: ?>
                 <div class="overflow-x-auto">
@@ -402,8 +402,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Кол-во</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пользователь</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Кількість</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Користувач</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -418,11 +418,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                         <?php if ($transaction['transaction_type'] == 'in'): ?>
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Приход
+                                                Надходження
                                             </span>
                                         <?php else: ?>
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                Расход
+                                                Витрата
                                             </span>
                                         <?php endif; ?>
                                     </td>
@@ -444,13 +444,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
-    <!-- JavaScript для графиков и интерактивности -->
+    <!-- JavaScript для графіків та інтерактивності -->
     <script>
-        // График по категориям
+        // Графік за категоріями
         var categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
         var categoriesChart = new Chart(categoriesCtx, {
             type: 'doughnut',
@@ -498,64 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
         
-        // График активности на складе
-        // Генерируем случайные данные для демонстрации
-        var activityLabels = [];
-        var inData = [];
-        var outData = [];
-        
-        // Последние 14 дней
-        for (var i = 13; i >= 0; i--) {
-            var date = new Date();
-            date.setDate(date.getDate() - i);
-            activityLabels.push(date.getDate() + '.' + (date.getMonth() + 1));
-            
-            // Генерируем случайные данные
-            inData.push(Math.floor(Math.random() * 15) + 5);
-            outData.push(Math.floor(Math.random() * 10) + 3);
-        }
-        
-        var warehouseActivityCtx = document.getElementById('warehouseActivityChart').getContext('2d');
-        var warehouseActivityChart = new Chart(warehouseActivityCtx, {
-            type: 'line',
-            data: {
-                labels: activityLabels,
-                datasets: [
-                    {
-                        label: 'Приход',
-                        data: inData,
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        borderWidth: 2,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Расход',
-                        data: outData,
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 2,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        
-        // Функции для управления редактированием минимального запаса
+        // Функції для керування редагуванням мінімального запасу
         function showMinStockEdit(productId) {
             document.getElementById('min_stock_' + productId).classList.add('hidden');
             document.getElementById('min_stock_form_' + productId).classList.remove('hidden');

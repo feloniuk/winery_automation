@@ -1,0 +1,10 @@
+[2025-03-27 18:54:55] Uncaught Exception: syntax error, unexpected '<'
+File: D:\diploms-2025\winery_automation2\controllers\AdminController.php on line 157
+Stack trace: 
+#0 {main}
+
+[2025-03-27 18:54:55] Uncaught Exception: syntax error, unexpected '<'
+File: D:\diploms-2025\winery_automation2\controllers\AdminController.php on line 157
+Stack trace: 
+#0 {main}
+

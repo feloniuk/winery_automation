@@ -1,85 +1,85 @@
 <?php
 // views/admin/settings.php
-// Страница настроек системы для администратора
+// Сторінка налаштувань системи для адміністратора
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/AdminController.php';
 
 $authController = new AuthController();
 $adminController = new AdminController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('admin')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для страницы
+// Отримання даних для сторінки
 $currentUser = $authController->getCurrentUser();
 
-// Обработка действий для настроек
+// Обробка дій для налаштувань
 $message = '';
 $error = '';
 
-// Создание резервной копии
+// Створення резервної копії
 if (isset($_POST['create_backup'])) {
     $result = $adminController->createBackup();
     if ($result['success']) {
-        $message = "Резервная копия успешно создана: " . $result['filename'];
+        $message = "Резервна копія успішно створена: " . $result['filename'];
     } else {
-        $error = "Ошибка при создании резервной копии";
+        $error = "Помилка при створенні резервної копії";
     }
 }
 
-// Обновление параметров системы (заглушка, в реальной системе здесь был бы код для сохранения настроек)
+// Оновлення параметрів системи (заглушка, в реальній системі тут був би код для збереження налаштувань)
 if (isset($_POST['update_settings'])) {
-    $message = "Настройки системы успешно обновлены";
+    $message = "Налаштування системи успішно оновлені";
 }
 
-// Обновление параметров уведомлений (заглушка, в реальной системе здесь был бы код для сохранения настроек уведомлений)
+// Оновлення параметрів сповіщень (заглушка, в реальній системі тут був би код для збереження налаштувань сповіщень)
 if (isset($_POST['update_notifications'])) {
-    $message = "Настройки уведомлений успешно обновлены";
+    $message = "Налаштування сповіщень успішно оновлені";
 }
 
-// Обновление данных аккаунта администратора
+// Оновлення даних облікового запису адміністратора
 if (isset($_POST['update_profile'])) {
-    // В реальной системе здесь был бы код обновления профиля
-    $message = "Данные профиля успешно обновлены";
+    // В реальній системі тут був би код оновлення профілю
+    $message = "Дані профілю успішно оновлені";
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настройки - Панель администратора</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Налаштування - Панель адміністратора</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-indigo-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Администратор)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Адміністратор)</span>
                 <a href="../../controllers/logout.php" class="bg-indigo-700 hover:bg-indigo-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель та основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -88,7 +88,7 @@ if (isset($_POST['update_profile'])) {
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500">Администратор системы</p>
+                        <p class="text-sm text-gray-500">Адміністратор системи</p>
                     </div>
                 </div>
                 
@@ -96,19 +96,19 @@ if (isset($_POST['update_profile'])) {
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="users.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-users w-5 mr-2"></i>
-                            <span>Пользователи</span>
+                            <span>Користувачі</span>
                         </a>
                     </li>
                     <li>
                         <a href="cameras.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-video w-5 mr-2"></i>
-                            <span>Камеры наблюдения</span>
+                            <span>Камери спостереження</span>
                         </a>
                     </li>
                     <li>
@@ -120,53 +120,53 @@ if (isset($_POST['update_profile'])) {
                     <li>
                         <a href="purchasing.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Закупки</span>
+                            <span>Закупівлі</span>
                         </a>
                     </li>
                     <li>
                         <a href="reports.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-chart-bar w-5 mr-2"></i>
-                            <span>Отчеты</span>
+                            <span>Звіти</span>
                         </a>
                     </li>
                     <li>
                         <a href="settings.php" class="flex items-center p-2 bg-indigo-100 text-indigo-700 rounded font-medium">
                             <i class="fas fa-cog w-5 mr-2"></i>
-                            <span>Настройки</span>
+                            <span>Налаштування</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
             
-            <!-- Информация о системе -->
+            <!-- Інформація про систему -->
             <div class="bg-white rounded-lg shadow-md p-4">
-                <h3 class="font-semibold text-lg mb-3">Информация о системе</h3>
+                <h3 class="font-semibold text-lg mb-3">Інформація про систему</h3>
                 <ul class="space-y-3">
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Версия:</span>
+                        <span class="text-gray-600">Версія:</span>
                         <span class="font-semibold">1.2.5</span>
                     </li>
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Последнее обновление:</span>
+                        <span class="text-gray-600">Останнє оновлення:</span>
                         <span class="font-semibold"><?php echo date('d.m.Y'); ?></span>
                     </li>
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Лицензия:</span>
+                        <span class="text-gray-600">Ліцензія:</span>
                         <span class="font-semibold">Enterprise</span>
                     </li>
                     <li class="flex justify-between">
-                        <span class="text-gray-600">Поддержка до:</span>
+                        <span class="text-gray-600">Підтримка до:</span>
                         <span class="font-semibold"><?php echo date('d.m.Y', strtotime('+1 year')); ?></span>
                     </li>
                 </ul>
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Настройки системы</h2>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Налаштування системи</h2>
                 
                 <?php if ($message): ?>
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
@@ -180,48 +180,48 @@ if (isset($_POST['update_profile'])) {
                 </div>
                 <?php endif; ?>
                 
-                <!-- Вкладки для настроек -->
+                <!-- Вкладки для налаштувань -->
                 <div class="border-b border-gray-200 mb-6">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                         <a href="#system-settings" class="tab-link border-indigo-500 text-indigo-600 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="showTab('system-settings')">
-                            Системные настройки
+                            Системні налаштування
                         </a>
                         <a href="#notification-settings" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="showTab('notification-settings')">
-                            Уведомления
+                            Сповіщення
                         </a>
                         <a href="#account-settings" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="showTab('account-settings')">
-                            Аккаунт
+                            Обліковий запис
                         </a>
                         <a href="#backup-settings" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="showTab('backup-settings')">
-                            Резервное копирование
+                            Резервне копіювання
                         </a>
                     </nav>
                 </div>
                 
-                <!-- Содержимое вкладок -->
+                <!-- Вміст вкладок -->
                 <div id="system-settings" class="tab-content block">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Системные настройки</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Системні налаштування</h3>
                     <form method="POST" action="">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label for="company_name" class="block text-sm font-medium text-gray-700">Название компании</label>
-                                <input type="text" id="company_name" name="company_name" value="Винное производство" 
+                                <label for="company_name" class="block text-sm font-medium text-gray-700">Назва компанії</label>
+                                <input type="text" id="company_name" name="company_name" value="Винне виробництво" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="system_email" class="block text-sm font-medium text-gray-700">Email системы</label>
+                                <label for="system_email" class="block text-sm font-medium text-gray-700">Email системи</label>
                                 <input type="email" id="system_email" name="system_email" value="system@winery.example" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="timezone" class="block text-sm font-medium text-gray-700">Часовой пояс</label>
+                                <label for="timezone" class="block text-sm font-medium text-gray-700">Часовий пояс</label>
                                 <select id="timezone" name="timezone" 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option value="Europe/Kyiv" selected>Киев (UTC+2)</option>
+                                    <option value="Europe/Kyiv" selected>Київ (UTC+2)</option>
                                 </select>
                             </div>
                             <div>
-                                <label for="date_format" class="block text-sm font-medium text-gray-700">Формат даты</label>
+                                <label for="date_format" class="block text-sm font-medium text-gray-700">Формат дати</label>
                                 <select id="date_format" name="date_format" 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <option value="d.m.Y" selected>DD.MM.YYYY (31.12.2023)</option>
@@ -233,32 +233,32 @@ if (isset($_POST['update_profile'])) {
                         </div>
                         
                         <div class="border-t border-gray-200 pt-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">Настройки безопасности</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-3">Налаштування безпеки</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <label for="session_lifetime" class="block text-sm font-medium text-gray-700">Время жизни сессии (минут)</label>
+                                    <label for="session_lifetime" class="block text-sm font-medium text-gray-700">Час життя сесії (хвилин)</label>
                                     <input type="number" id="session_lifetime" name="session_lifetime" value="120" min="15" max="480" 
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                                 <div>
-                                    <label for="password_policy" class="block text-sm font-medium text-gray-700">Политика паролей</label>
+                                    <label for="password_policy" class="block text-sm font-medium text-gray-700">Політика паролів</label>
                                     <select id="password_policy" name="password_policy" 
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="simple">Простая (минимум 6 символов)</option>
-                                        <option value="medium" selected>Средняя (минимум 8 символов, цифры)</option>
-                                        <option value="strong">Строгая (минимум 10 символов, цифры, спец. символы)</option>
+                                        <option value="simple">Проста (мінімум 6 символів)</option>
+                                        <option value="medium" selected>Середня (мінімум 8 символів, цифри)</option>
+                                        <option value="strong">Строга (мінімум 10 символів, цифри, спец. символи)</option>
                                     </select>
                                 </div>
                                 <div class="flex items-center">
                                     <input type="checkbox" id="force_password_change" name="force_password_change" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                     <label for="force_password_change" class="ml-2 block text-sm text-gray-700">
-                                        Принудительная смена пароля каждые 90 дней
+                                        Примусова зміна пароля кожні 90 днів
                                     </label>
                                 </div>
                                 <div class="flex items-center">
                                     <input type="checkbox" id="enable_2fa" name="enable_2fa" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                     <label for="enable_2fa" class="ml-2 block text-sm text-gray-700">
-                                        Включить двухфакторную аутентификацию
+                                        Увімкнути двофакторну аутентифікацію
                                     </label>
                                 </div>
                             </div>
@@ -266,20 +266,20 @@ if (isset($_POST['update_profile'])) {
                         
                         <div class="flex justify-end mt-6">
                             <button type="submit" name="update_settings" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md">
-                                Сохранить настройки
+                                Зберегти налаштування
                             </button>
                         </div>
                     </form>
                 </div>
                 
                 <div id="notification-settings" class="tab-content hidden">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Настройки уведомлений</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Налаштування сповіщень</h3>
                     <form method="POST" action="">
                         <div class="space-y-4 mb-6">
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Низкий запас товаров</h4>
-                                    <p class="text-sm text-gray-500">Уведомления о товарах с запасом ниже минимального</p>
+                                    <h4 class="font-medium text-gray-900">Низький запас товарів</h4>
+                                    <p class="text-sm text-gray-500">Сповіщення про товари із запасом нижче мінімального</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
                                     <label class="inline-flex items-center">
@@ -292,15 +292,15 @@ if (isset($_POST['update_profile'])) {
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" name="low_stock_push" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Уведомления в системе</span>
+                                        <span class="ml-2 text-sm text-gray-700">Сповіщення в системі</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Новые заказы</h4>
-                                    <p class="text-sm text-gray-500">Уведомления о создании новых заказов</p>
+                                    <h4 class="font-medium text-gray-900">Нові замовлення</h4>
+                                    <p class="text-sm text-gray-500">Сповіщення про створення нових замовлень</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
                                     <label class="inline-flex items-center">
@@ -313,15 +313,15 @@ if (isset($_POST['update_profile'])) {
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" name="new_order_push" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Уведомления в системе</span>
+                                        <span class="ml-2 text-sm text-gray-700">Сповіщення в системі</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Проблемы с камерами</h4>
-                                    <p class="text-sm text-gray-500">Уведомления о неактивных камерах наблюдения</p>
+                                    <h4 class="font-medium text-gray-900">Проблеми з камерами</h4>
+                                    <p class="text-sm text-gray-500">Сповіщення про неактивні камери спостереження</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
                                     <label class="inline-flex items-center">
@@ -334,15 +334,15 @@ if (isset($_POST['update_profile'])) {
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" name="camera_issue_push" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Уведомления в системе</span>
+                                        <span class="ml-2 text-sm text-gray-700">Сповіщення в системі</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Отчеты</h4>
-                                    <p class="text-sm text-gray-500">Еженедельные отчеты о состоянии системы</p>
+                                    <h4 class="font-medium text-gray-900">Звіти</h4>
+                                    <p class="text-sm text-gray-500">Щотижневі звіти про стан системи</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
                                     <label class="inline-flex items-center">
@@ -355,23 +355,23 @@ if (isset($_POST['update_profile'])) {
                                     </label>
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" name="reports_push" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                        <span class="ml-2 text-sm text-gray-700">Уведомления в системе</span>
+                                        <span class="ml-2 text-sm text-gray-700">Сповіщення в системі</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="border-t border-gray-200 pt-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">Контакты для уведомлений</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-3">Контакти для сповіщень</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <label for="notification_email" class="block text-sm font-medium text-gray-700">Email для уведомлений</label>
+                                    <label for="notification_email" class="block text-sm font-medium text-gray-700">Email для сповіщень</label>
                                     <input type="email" id="notification_email" name="notification_email" value="admin@winery.example" 
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                                 <div>
                                     <label for="notification_phone" class="block text-sm font-medium text-gray-700">Телефон для SMS</label>
-                                    <input type="tel" id="notification_phone" name="notification_phone" value="+7 (999) 123-45-67" 
+                                    <input type="tel" id="notification_phone" name="notification_phone" value="+38 (067) 123-45-67" 
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                             </div>
@@ -379,18 +379,18 @@ if (isset($_POST['update_profile'])) {
                         
                         <div class="flex justify-end mt-6">
                             <button type="submit" name="update_notifications" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md">
-                                Сохранить настройки уведомлений
+                                Зберегти налаштування сповіщень
                             </button>
                         </div>
                     </form>
                 </div>
                 
                 <div id="account-settings" class="tab-content hidden">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Настройки аккаунта</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Налаштування облікового запису</h3>
                     <form method="POST" action="">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label for="account_name" class="block text-sm font-medium text-gray-700">ФИО</label>
+                                <label for="account_name" class="block text-sm font-medium text-gray-700">ПІБ</label>
                                 <input type="text" id="account_name" name="account_name" value="<?php echo htmlspecialchars($currentUser['name']); ?>" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
@@ -400,37 +400,37 @@ if (isset($_POST['update_profile'])) {
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="account_username" class="block text-sm font-medium text-gray-700">Логин</label>
+                                <label for="account_username" class="block text-sm font-medium text-gray-700">Логін</label>
                                 <input type="text" id="account_username" name="account_username" value="<?php echo htmlspecialchars($currentUser['username']); ?>" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100" readonly>
-                                <p class="mt-1 text-xs text-gray-500">Логин изменить нельзя</p>
+                                <p class="mt-1 text-xs text-gray-500">Логін змінити не можна</p>
                             </div>
                             <div>
-                                <label for="account_password" class="block text-sm font-medium text-gray-700">Новый пароль</label>
-                                <input type="password" id="account_password" name="account_password" placeholder="Оставьте пустым, чтобы не менять" 
+                                <label for="account_password" class="block text-sm font-medium text-gray-700">Новий пароль</label>
+                                <input type="password" id="account_password" name="account_password" placeholder="Залиште порожнім, щоб не змінювати" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="account_password_confirm" class="block text-sm font-medium text-gray-700">Подтверждение пароля</label>
-                                <input type="password" id="account_password_confirm" name="account_password_confirm" placeholder="Подтвердите новый пароль" 
+                                <label for="account_password_confirm" class="block text-sm font-medium text-gray-700">Підтвердження пароля</label>
+                                <input type="password" id="account_password_confirm" name="account_password_confirm" placeholder="Підтвердіть новий пароль" 
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             </div>
                         </div>
                         
                         <div class="border-t border-gray-200 pt-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">Настройки интерфейса</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-3">Налаштування інтерфейсу</h4>
                             <div class="grid grid-cols-1 gap-6 mb-6">
                                 <div>
-                                    <label for="interface_theme" class="block text-sm font-medium text-gray-700">Тема интерфейса</label>
+                                    <label for="interface_theme" class="block text-sm font-medium text-gray-700">Тема інтерфейсу</label>
                                     <select id="interface_theme" name="interface_theme" 
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="light" selected>Светлая</option>
-                                        <option value="dark">Темная</option>
-                                        <option value="system">Системная</option>
+                                        <option value="light" selected>Світла</option>
+                                        <option value="dark">Темна</option>
+                                        <option value="system">Системна</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="items_per_page" class="block text-sm font-medium text-gray-700">Элементов на странице</label>
+                                    <label for="items_per_page" class="block text-sm font-medium text-gray-700">Елементів на сторінці</label>
                                     <select id="items_per_page" name="items_per_page" 
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                         <option value="10">10</option>
@@ -442,7 +442,7 @@ if (isset($_POST['update_profile'])) {
                                 <div class="flex items-center">
                                     <input type="checkbox" id="enable_animations" name="enable_animations" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                     <label for="enable_animations" class="ml-2 block text-sm text-gray-700">
-                                        Включить анимации интерфейса
+                                        Увімкнути анімації інтерфейсу
                                     </label>
                                 </div>
                             </div>
@@ -450,32 +450,32 @@ if (isset($_POST['update_profile'])) {
                         
                         <div class="flex justify-end mt-6">
                             <button type="submit" name="update_profile" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md">
-                                Сохранить настройки аккаунта
+                                Зберегти налаштування облікового запису
                             </button>
                         </div>
                     </form>
                 </div>
                 
                 <div id="backup-settings" class="tab-content hidden">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Резервное копирование</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Резервне копіювання</h3>
                     
                     <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-700 mb-3">Создать резервную копию</h4>
-                        <p class="text-sm text-gray-500 mb-4">Создайте полную резервную копию базы данных системы. Это поможет восстановить работу системы в случае сбоя.</p>
+                        <h4 class="text-md font-medium text-gray-700 mb-3">Створити резервну копію</h4>
+                        <p class="text-sm text-gray-500 mb-4">Створіть повну резервну копію бази даних системи. Це допоможе відновити роботу системи у випадку збою.</p>
                         <form method="POST" action="" class="mb-3">
                             <button type="submit" name="create_backup" class="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                                <i class="fas fa-database mr-2"></i> Создать резервную копию
+                                <i class="fas fa-database mr-2"></i> Створити резервну копію
                             </button>
                         </form>
                     </div>
                     
                     <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-700 mb-3">Автоматические резервные копии</h4>
+                        <h4 class="text-md font-medium text-gray-700 mb-3">Автоматичні резервні копії</h4>
                         <div class="bg-gray-50 p-4 rounded mb-4">
                             <div class="flex items-center mb-4">
                                 <input type="checkbox" id="enable_auto_backup" name="enable_auto_backup" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                 <label for="enable_auto_backup" class="ml-2 block text-sm font-medium text-gray-700">
-                                    Включить автоматическое резервное копирование
+                                    Увімкнути автоматичне резервне копіювання
                                 </label>
                             </div>
                             
@@ -484,25 +484,25 @@ if (isset($_POST['update_profile'])) {
                                     <label for="backup_frequency" class="block text-sm font-medium text-gray-700">Частота</label>
                                     <select id="backup_frequency" name="backup_frequency" 
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="daily">Ежедневно</option>
-                                        <option value="weekly" selected>Еженедельно</option>
-                                        <option value="monthly">Ежемесячно</option>
+                                        <option value="daily">Щоденно</option>
+                                        <option value="weekly" selected>Щотижнево</option>
+                                        <option value="monthly">Щомісячно</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="backup_time" class="block text-sm font-medium text-gray-700">Время</label>
+                                    <label for="backup_time" class="block text-sm font-medium text-gray-700">Час</label>
                                     <input type="time" id="backup_time" name="backup_time" value="02:00" 
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                                 <div>
-                                    <label for="backup_retention" class="block text-sm font-medium text-gray-700">Хранить копии</label>
+                                    <label for="backup_retention" class="block text-sm font-medium text-gray-700">Зберігати копії</label>
                                     <select id="backup_retention" name="backup_retention" 
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="7">7 дней</option>
-                                        <option value="14">14 дней</option>
-                                        <option value="30" selected>30 дней</option>
-                                        <option value="90">90 дней</option>
-                                        <option value="365">1 год</option>
+                                        <option value="7">7 днів</option>
+                                        <option value="14">14 днів</option>
+                                        <option value="30" selected>30 днів</option>
+                                        <option value="90">90 днів</option>
+                                        <option value="365">1 рік</option>
                                     </select>
                                 </div>
                             </div>
@@ -510,33 +510,33 @@ if (isset($_POST['update_profile'])) {
                         
                         <div class="flex justify-end">
                             <button type="submit" name="update_backup_settings" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                                Сохранить настройки
+                                Зберегти налаштування
                             </button>
                         </div>
                     </div>
                     
                     <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-700 mb-3">История резервных копий</h4>
+                        <h4 class="text-md font-medium text-gray-700 mb-3">Історія резервних копій</h4>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Имя файла
+                                            Ім'я файлу
                                         </th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Дата создания
+                                            Дата створення
                                         </th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Размер
+                                            Розмір
                                         </th>
                                         <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Действия
+                                            Дії
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <!-- В реальной системе здесь был бы цикл по реальным резервным копиям -->
+                                    <!-- В реальній системі тут був би цикл по реальним резервним копіям -->
                                     <tr>
                                         <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                                             backup_2023-03-22_02-00-00.sql
@@ -548,8 +548,8 @@ if (isset($_POST['update_profile'])) {
                                             5.4 MB
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Скачать</a>
-                                            <a href="#" class="text-red-600 hover:text-red-900">Удалить</a>
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Завантажити</a>
+                                            <a href="#" class="text-red-600 hover:text-red-900">Видалити</a>
                                         </td>
                                     </tr>
                                     <tr>
@@ -563,8 +563,10 @@ if (isset($_POST['update_profile'])) {
                                             5.2 MB
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Скачать</a>
-                                            <a href="#" class="text-red-600 hover:text-red-900">Удалить</a>
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Завантажити</a>
+                                            <a href="#" class="text-red-600 hover:text-red-900">Видалити</a>
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Завантажити</a>
+                                            <a href="#" class="text-red-600 hover:text-red-900">Видалити</a>
                                         </td>
                                     </tr>
                                     <tr>
@@ -578,8 +580,8 @@ if (isset($_POST['update_profile'])) {
                                             5.1 MB
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Скачать</a>
-                                            <a href="#" class="text-red-600 hover:text-red-900">Удалить</a>
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">Завантажити</a>
+                                            <a href="#" class="text-red-600 hover:text-red-900">Видалити</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -593,29 +595,29 @@ if (isset($_POST['update_profile'])) {
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript для вкладок -->
     <script>
-        // Функция для отображения вкладки
+        // Функція для відображення вкладки
         function showTab(tabId) {
-            // Скрываем все вкладки
+            // Приховуємо всі вкладки
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
             });
             
-            // Убираем активный класс со всех ссылок вкладок
+            // Прибираємо активний клас з усіх посилань вкладок
             document.querySelectorAll('.tab-link').forEach(link => {
                 link.classList.remove('border-indigo-500', 'text-indigo-600');
                 link.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             });
             
-            // Показываем выбранную вкладку
+            // Показуємо вибрану вкладку
             document.getElementById(tabId).classList.remove('hidden');
             
-            // Добавляем активный класс выбранной ссылке
+            // Додаємо активний клас вибраному посиланню
             document.querySelectorAll('.tab-link').forEach(link => {
                 if (link.getAttribute('href') === '#' + tabId) {
                     link.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
@@ -624,14 +626,14 @@ if (isset($_POST['update_profile'])) {
             });
         }
         
-        // Проверка хэша в URL при загрузке страницы
+        // Перевірка хешу в URL при завантаженні сторінки
         document.addEventListener('DOMContentLoaded', function() {
             const hash = window.location.hash.substring(1);
             if (hash && document.getElementById(hash)) {
                 showTab(hash);
             }
             
-            // Добавляем обработчики событий для ссылок вкладок
+            // Додаємо обробники подій для посилань вкладок
             document.querySelectorAll('.tab-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
