@@ -1,21 +1,21 @@
 <?php
 // views/purchasing/dashboard.php
-// Панель управления для менеджера по закупкам
+// Панель керування для менеджера із закупівель
 
-// Подключение контроллеров
+// Підключення контролерів
 require_once '../../controllers/AuthController.php';
 require_once '../../controllers/PurchasingController.php';
 
 $authController = new AuthController();
 $purchasingController = new PurchasingController();
 
-// Проверка авторизации и роли
+// Перевірка авторизації та ролі
 if (!$authController->isLoggedIn() || !$authController->checkRole('purchasing')) {
     header('Location: ../../index.php');
     exit;
 }
 
-// Получение данных для дашборда
+// Отримання даних для дашборду
 $currentUser = $authController->getCurrentUser();
 $pendingOrders = $purchasingController->getOrdersByStatus('pending');
 $approvedOrders = $purchasingController->getOrdersByStatus('approved');
@@ -23,51 +23,51 @@ $receivedOrders = $purchasingController->getRecentReceivedOrders(5);
 $lowStockItems = $purchasingController->getLowStockItems();
 $suppliers = $purchasingController->getActiveSuppliers();
 
-// Подсчет важных метрик
+// Підрахунок важливих метрик
 $totalActiveOrders = count($pendingOrders) + count($approvedOrders);
 $totalActiveSuppliers = count($suppliers);
 $totalLowStockItems = count($lowStockItems);
 $ordersThisMonth = $purchasingController->getOrdersCountForPeriod(date('Y-m-01'), date('Y-m-t'));
 $totalSpendingThisMonth = $purchasingController->getTotalSpendingForPeriod(date('Y-m-01'), date('Y-m-t'));
 
-// Получение данных для графика заказов по месяцам
+// Отримання даних для графіка замовлень за місяцями
 $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
 
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель управления закупками - Винное производство</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Панель керування закупівлями - Винне виробництво</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js для графиков -->
+    <!-- Chart.js для графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Иконки -->
+    <!-- Іконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Верхняя навигационная панель -->
+    <!-- Верхня навігаційна панель -->
     <nav class="bg-teal-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <i class="fas fa-wine-bottle text-2xl mr-3"></i>
-                <h1 class="text-xl font-bold">Винное производство</h1>
+                <h1 class="text-xl font-bold">Винне виробництво</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Менеджер по закупкам)</span>
+                <span><?php echo htmlspecialchars($currentUser['name']); ?> (Менеджер із закупівель)</span>
                 <a href="../../controllers/logout.php" class="bg-teal-700 hover:bg-teal-600 py-2 px-4 rounded text-sm">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+                    <i class="fas fa-sign-out-alt mr-1"></i> Вийти
                 </a>
             </div>
         </div>
     </nav>
     
-    <!-- Боковая панель и основной контент -->
+    <!-- Бічна панель та основний контент -->
     <div class="container mx-auto flex flex-wrap mt-6 px-4">
-        <!-- Боковая навигация -->
+        <!-- Бічна навігація -->
         <aside class="w-full md:w-1/4 pr-0 md:pr-6">
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
@@ -76,7 +76,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                     </div>
                     <div>
                         <p class="font-semibold"><?php echo htmlspecialchars($currentUser['name']); ?></p>
-                        <p class="text-sm text-gray-500">Менеджер по закупкам</p>
+                        <p class="text-sm text-gray-500">Менеджер із закупівель</p>
                     </div>
                 </div>
                 
@@ -84,31 +84,31 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                     <li>
                         <a href="dashboard.php" class="flex items-center p-2 bg-teal-100 text-teal-700 rounded font-medium">
                             <i class="fas fa-tachometer-alt w-5 mr-2"></i>
-                            <span>Панель управления</span>
+                            <span>Панель керування</span>
                         </a>
                     </li>
                     <li>
                         <a href="suppliers.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
                             <i class="fas fa-truck w-5 mr-2"></i>
-                            <span>Поставщики</span>
+                            <span>Постачальники</span>
                         </a>
                     </li>
                     <li>
                         <a href="orders.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
                             <i class="fas fa-shopping-cart w-5 mr-2"></i>
-                            <span>Заказы</span>
+                            <span>Замовлення</span>
                         </a>
                     </li>
                     <li>
                         <a href="inventory.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
                             <i class="fas fa-boxes w-5 mr-2"></i>
-                            <span>Остатки на складе</span>
+                            <span>Залишки на складі</span>
                         </a>
                     </li>
                     <li>
                         <a href="messages.php" class="flex items-center p-2 text-gray-700 hover:bg-teal-50 rounded font-medium">
                             <i class="fas fa-envelope w-5 mr-2"></i>
-                            <span>Сообщения</span>
+                            <span>Повідомлення</span>
                             <?php 
                             $unreadCount = $purchasingController->getUnreadMessagesCount($currentUser['id']);
                             if ($unreadCount > 0): 
@@ -123,9 +123,9 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
             </div>
         </aside>
         
-        <!-- Основной контент -->
+        <!-- Основний контент -->
         <main class="w-full md:w-3/4">
-            <!-- Карточки с краткой статистикой -->
+            <!-- Картки з короткою статистикою -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center">
@@ -133,7 +133,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             <i class="fas fa-shopping-cart text-blue-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Активные заказы</p>
+                            <p class="text-sm text-gray-500">Активні замовлення</p>
                             <p class="text-2xl font-bold"><?php echo $totalActiveOrders; ?></p>
                         </div>
                     </div>
@@ -144,7 +144,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             <i class="fas fa-truck-loading text-green-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Активные поставщики</p>
+                            <p class="text-sm text-gray-500">Активні постачальники</p>
                             <p class="text-2xl font-bold"><?php echo $totalActiveSuppliers; ?></p>
                         </div>
                     </div>
@@ -155,7 +155,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             <i class="fas fa-exclamation-triangle text-yellow-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Товары с низким запасом</p>
+                            <p class="text-sm text-gray-500">Товари з низьким запасом</p>
                             <p class="text-2xl font-bold"><?php echo $totalLowStockItems; ?></p>
                         </div>
                     </div>
@@ -166,37 +166,37 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                             <i class="fas fa-calendar-alt text-purple-500"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Заказов в этом месяце</p>
+                            <p class="text-sm text-gray-500">Замовлень у цьому місяці</p>
                             <p class="text-2xl font-bold"><?php echo $ordersThisMonth; ?></p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Основные блоки с данными -->
+            <!-- Основні блоки з даними -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- График заказов по месяцам -->
+                <!-- Графік замовлень за місяцями -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Динамика заказов</h2>
+                    <h2 class="text-lg font-semibold mb-4">Динаміка замовлень</h2>
                     <div>
                         <canvas id="ordersChart" width="400" height="300"></canvas>
                     </div>
                 </div>
                 
-                <!-- Товары с низким запасом -->
+                <!-- Товари з низьким запасом -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Срочные заказы (низкий запас)</h2>
+                    <h2 class="text-lg font-semibold mb-4">Термінові замовлення (низький запас)</h2>
                     <?php if (empty($lowStockItems)): ?>
-                        <p class="text-gray-500 text-center py-6">Все товары имеют достаточный запас.</p>
+                        <p class="text-gray-500 text-center py-6">Всі товари мають достатній запас.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Категория</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Кол-во</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действие</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Категорія</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">К-сть</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дія</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -208,9 +208,9 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <?php 
                                                     $categories = [
-                                                        'raw_material' => 'Сырьё',
+                                                        'raw_material' => 'Сировина',
                                                         'packaging' => 'Упаковка',
-                                                        'finished_product' => 'Готовая продукция'
+                                                        'finished_product' => 'Готова продукція'
                                                     ];
                                                     echo $categories[$item['category']] ?? $item['category']; 
                                                 ?>
@@ -222,7 +222,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <a href="create_order.php?product_id=<?php echo $item['id']; ?>" class="text-teal-600 hover:text-teal-900">
-                                                    Создать заказ
+                                                    Створити замовлення
                                                 </a>
                                             </td>
                                         </tr>
@@ -233,28 +233,28 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                         <?php if (count($lowStockItems) > 5): ?>
                             <div class="mt-4 text-right">
                                 <a href="low_stock.php" class="text-sm text-teal-600 hover:text-teal-800">
-                                    Показать все (<?php echo count($lowStockItems); ?>) <i class="fas fa-arrow-right ml-1"></i>
+                                    Показати всі (<?php echo count($lowStockItems); ?>) <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Заказы, ожидающие подтверждения -->
+                <!-- Замовлення, що очікують підтвердження -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Заказы, ожидающие подтверждения</h2>
+                    <h2 class="text-lg font-semibold mb-4">Замовлення, що очікують підтвердження</h2>
                     <?php if (empty($pendingOrders)): ?>
-                        <p class="text-gray-500 text-center py-6">Нет заказов, ожидающих подтверждения.</p>
+                        <p class="text-gray-500 text-center py-6">Немає замовлень, що очікують підтвердження.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Поставщик</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Постачальник</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сумма</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действие</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сума</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дія</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -274,10 +274,10 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                 <a href="order_details.php?id=<?php echo $order['id']; ?>" class="text-teal-600 hover:text-teal-900 mr-3">
-                                                    Детали
+                                                    Деталі
                                                 </a>
                                                 <a href="#" onclick="approveOrder(<?php echo $order['id']; ?>)" class="text-green-600 hover:text-green-900">
-                                                    Подтвердить
+                                                    Підтвердити
                                                 </a>
                                             </td>
                                         </tr>
@@ -287,26 +287,26 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                         </div>
                         <div class="mt-4 text-right">
                             <a href="orders.php?status=pending" class="text-sm text-teal-600 hover:text-teal-800">
-                                Управление заказами <i class="fas fa-arrow-right ml-1"></i>
+                                Управління замовленнями <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Последние полученные заказы -->
+                <!-- Останні отримані замовлення -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold mb-4">Последние полученные заказы</h2>
+                    <h2 class="text-lg font-semibold mb-4">Останні отримані замовлення</h2>
                     <?php if (empty($receivedOrders)): ?>
-                        <p class="text-gray-500 text-center py-6">Нет полученных заказов.</p>
+                        <p class="text-gray-500 text-center py-6">Немає отриманих замовлень.</p>
                     <?php else: ?>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Поставщик</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата получения</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сумма</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Постачальник</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата отримання</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сума</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -331,23 +331,23 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                         </div>
                         <div class="mt-4 text-right">
                             <a href="orders.php?status=received" class="text-sm text-teal-600 hover:text-teal-800">
-                                История заказов <i class="fas fa-arrow-right ml-1"></i>
+                                Історія замовлень <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
             
-            <!-- Дополнительная аналитика -->
+            <!-- Додаткова аналітика -->
             <div class="mt-6 bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-lg font-semibold mb-4">Ежемесячные расходы на закупки</h2>
+                <h2 class="text-lg font-semibold mb-4">Щомісячні витрати на закупівлі</h2>
                 <div class="flex items-center justify-between mb-6">
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
-                        <p class="text-sm text-gray-500">Текущий месяц</p>
+                        <p class="text-sm text-gray-500">Поточний місяць</p>
                         <p class="text-2xl font-bold"><?php echo number_format($totalSpendingThisMonth, 2, ',', ' '); ?> ₴</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
-                        <p class="text-sm text-gray-500">Средний расход за заказ</p>
+                        <p class="text-sm text-gray-500">Середні витрати на замовлення</p>
                         <p class="text-2xl font-bold">
                             <?php 
                             $avgOrderAmount = $ordersThisMonth > 0 ? $totalSpendingThisMonth / $ordersThisMonth : 0;
@@ -356,11 +356,11 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                         </p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg flex-1 mx-2">
-                        <p class="text-sm text-gray-500">Прогноз на следующий месяц</p>
+                        <p class="text-sm text-gray-500">Прогноз на наступний місяць</p>
                         <p class="text-2xl font-bold">
                             <?php 
-                            // Простой прогноз - среднее за последние 3 месяца
-                            $forecastAmount = $totalSpendingThisMonth * 1.1; // Предположим рост на 10%
+                            // Простий прогноз - середнє за останні 3 місяці
+                            $forecastAmount = $totalSpendingThisMonth * 1.1; // Припустимо зростання на 10%
                             echo number_format($forecastAmount, 2, ',', ' '); 
                             ?> ₴
                         </p>
@@ -369,7 +369,7 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
                 
                 <div class="mt-4 text-right">
                     <a href="reports.php" class="text-sm text-teal-600 hover:text-teal-800">
-                        Подробный отчет по закупкам <i class="fas fa-arrow-right ml-1"></i>
+                        Детальний звіт із закупівель <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
             </div>
@@ -378,20 +378,20 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
     
     <footer class="bg-white p-4 mt-8 border-t border-gray-200">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; <?php echo date('Y'); ?> Винное производство. Система автоматизации процессов.
+            &copy; <?php echo date('Y'); ?> Винне виробництво. Система автоматизації процесів.
         </div>
     </footer>
     
     <!-- JavaScript -->
     <script>
-        // График заказов по месяцам
+        // Графік замовлень за місяцями
         var ctx = document.getElementById('ordersChart').getContext('2d');
         var ordersChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: <?php echo json_encode(array_column($ordersByMonth, 'month_name')); ?>,
                 datasets: [{
-                    label: 'Количество заказов',
+                    label: 'Кількість замовлень',
                     data: <?php echo json_encode(array_column($ordersByMonth, 'count')); ?>,
                     backgroundColor: 'rgba(20, 184, 166, 0.2)',
                     borderColor: 'rgba(20, 184, 166, 1)',
@@ -415,9 +415,9 @@ $ordersByMonth = $purchasingController->getOrderCountByMonth(6);
             }
         });
         
-        // Функция для подтверждения заказа
+        // Функція для підтвердження замовлення
         function approveOrder(orderId) {
-            if (confirm('Вы уверены, что хотите подтвердить заказ #' + orderId + '?')) {
+            if (confirm('Ви впевнені, що хочете підтвердити замовлення #' + orderId + '?')) {
                 window.location.href = 'approve_order.php?id=' + orderId;
             }
         }

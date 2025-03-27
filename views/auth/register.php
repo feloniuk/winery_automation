@@ -1,13 +1,13 @@
 <?php
 // views/auth/register.php
-// Страница регистрации поставщика
+// Сторінка реєстрації постачальника
 
-// Подключение контроллера авторизации
+// Підключення контролера авторизації
 require_once '../../controllers/AuthController.php';
 
 $authController = new AuthController();
 
-// Если пользователь уже авторизован, перенаправляем на соответствующую страницу
+// Якщо користувач уже авторизований, перенаправляємо на відповідну сторінку
 if ($authController->isLoggedIn()) {
     $role = $_SESSION['role'];
     switch ($role) {
@@ -27,7 +27,7 @@ if ($authController->isLoggedIn()) {
     exit;
 }
 
-// Обработка формы регистрации
+// Обробка форми реєстрації
 $error = '';
 $success = '';
 
@@ -57,14 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация поставщика - Автоматизация винного производства</title>
-    <!-- Подключение Tailwind CSS -->
+    <title>Реєстрація постачальника - Автоматизація винного виробництва</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Дополнительные стили -->
+    <!-- Додаткові стилі -->
     <style>
         body {
             background-image: url('https://images.unsplash.com/photo-1560493676-04071c5f467b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
@@ -82,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen flex items-center justify-center p-6">
     <div class="w-full max-w-xl glass-effect p-8">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-purple-900">Регистрация поставщика</h1>
-            <p class="text-gray-600 mt-2">Заполните форму для создания учетной записи</p>
+            <h1 class="text-3xl font-bold text-purple-900">Реєстрація постачальника</h1>
+            <p class="text-gray-600 mt-2">Заповніть форму для створення облікового запису</p>
         </div>
         
         <?php if ($error): ?>
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p><?php echo $success; ?></p>
                 <p class="mt-2">
                     <a href="../../index.php" class="font-medium text-green-600 hover:text-green-500">
-                        Перейти на страницу входа
+                        Перейти на сторінку входу
                     </a>
                 </p>
             </div>
@@ -105,10 +105,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <form method="POST" action="" class="space-y-6">
             <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Данные для входа</h2>
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Дані для входу</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700">Логин *</label>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Логін *</label>
                         <input type="text" id="username" name="username" required 
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">ФИО *</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700">ПІБ *</label>
                         <input type="text" id="name" name="name" required 
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
@@ -131,15 +131,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="bg-gray-50 p-4 rounded-lg">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Информация о компании</h2>
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Інформація про компанію</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="company_name" class="block text-sm font-medium text-gray-700">Название компании *</label>
+                        <label for="company_name" class="block text-sm font-medium text-gray-700">Назва компанії *</label>
                         <input type="text" id="company_name" name="company_name" required 
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
                     <div>
-                        <label for="contact_person" class="block text-sm font-medium text-gray-700">Контактное лицо *</label>
+                        <label for="contact_person" class="block text-sm font-medium text-gray-700">Контактна особа *</label>
                         <input type="text" id="contact_person" name="contact_person" required 
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="address" class="block text-sm font-medium text-gray-700">Адрес *</label>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Адреса *</label>
                         <textarea id="address" name="address" rows="3" required 
                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"></textarea>
                     </div>
@@ -160,23 +160,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input id="terms" name="terms" type="checkbox" required
                        class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
                 <label for="terms" class="ml-2 block text-sm text-gray-900">
-                    Я согласен с <a href="#" class="text-purple-600 hover:text-purple-500">условиями использования</a> и <a href="#" class="text-purple-600 hover:text-purple-500">политикой конфиденциальности</a>
+                    Я погоджуюсь з <a href="#" class="text-purple-600 hover:text-purple-500">умовами використання</a> та <a href="#" class="text-purple-600 hover:text-purple-500">політикою конфіденційності</a>
                 </label>
             </div>
             
             <div>
                 <button type="submit" 
                         class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                    Зарегистрироваться
+                    Зареєструватися
                 </button>
             </div>
         </form>
         
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
-                Уже зарегистрированы?
+                Вже зареєстровані?
                 <a href="../../index.php" class="font-medium text-purple-600 hover:text-purple-500">
-                    Войти в систему
+                    Увійти в систему
                 </a>
             </p>
         </div>
