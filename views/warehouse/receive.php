@@ -190,6 +190,12 @@ $sources = [
                         </a>
                     </li>
                     <li>
+                        <a href="barcode_scanner.php" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded font-medium">
+                            <i class="fas fa-barcode w-5 mr-2"></i>
+                            <span>Сканер штрих-кодів</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="receive.php" class="flex items-center p-2 bg-purple-100 text-purple-700 rounded font-medium">
                             <i class="fas fa-truck-loading w-5 mr-2"></i>
                             <span>Прийом товарів</span>

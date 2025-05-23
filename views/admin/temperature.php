@@ -257,11 +257,7 @@ if (!empty($temperatureData)) {
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800">Моніторинг температури охолодження вина</h2>
-                    <?php if (!$editRecord): ?>
-                    <button id="showAddForm" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                        <i class="fas fa-plus mr-1"></i> Додати запис
-                    </button>
-                    <?php endif; ?>
+                    
                 </div>
                 
                 <?php if ($message): ?>
