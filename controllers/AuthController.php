@@ -29,9 +29,9 @@ class AuthController {
         // SQL запит для перевірки користувача
         $query = "SELECT * FROM users WHERE username = ?";
         $user = $this->db->selectOne($query, [$username]);
-
+print_r($user);
         // Перевіряємо існування користувача та правильність пароля
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && $password == $user['password']) {
             // Записуємо дані користувача в сесію
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];

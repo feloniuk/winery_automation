@@ -201,6 +201,13 @@ $roleNames = [
                             <span>Закупівлі</span>
                         </a>
                     </li>
+                    
+                    <li>
+                        <a href="temperature.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
+                            <i class="fas fa-thermometer-half w-5 mr-2"></i>
+                            <span>Мониторинг СКАДА</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="reports.php" class="flex items-center p-2 text-gray-700 hover:bg-indigo-50 rounded font-medium">
                             <i class="fas fa-chart-bar w-5 mr-2"></i>
